@@ -3,22 +3,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Check, Loader2, Lock, ServerCog, ShieldCheck } from "lucide-react";
-import { SCAN_STAGES } from "@/lib/verdict";
+import { SCAN_STAGES, stageLabel } from "@/lib/verdict";
 import { cn } from "@/lib/utils";
+import { useLocale, useT } from "@/i18n/client";
+import { scanText } from "@/i18n/messages/report-scan";
 
-type LogLine = { t: number; text: string };
-
-const STAGE_LOG: Record<string, string> = {
-  validate: "URL parsed, normalized and checked against SSRF policy",
-  domain: "DNS records resolved (A, AAAA, MX, NS, TXT, CAA)",
-  reputation: "Registration data and reputation lists evaluated",
-  redirects: "Redirect chain followed in isolated fetcher",
-  ssl: "TLS handshake completed, certificate inspected",
-  content: "Page content and downloads analyzed statically",
-  intel: "Threat-intelligence providers consulted",
-};
+// The stage key is kept so the log line is rendered in the current language.
+type LogLine = { t: number; stage: string };
 
 export function ScanProgress({ url, stages, status, className }: { url: string; stages: string[]; status: string; className?: string }) {
+  const tx = useT(scanText);
+  const locale = useLocale();
   const startRef = useRef<number>(0);
   const [elapsedSec, setElapsedSec] = useState(0);
   const [log, setLog] = useState<LogLine[]>([]);
@@ -36,7 +31,7 @@ export function ScanProgress({ url, stages, status, className }: { url: string; 
     if (!fresh.length) return;
     fresh.forEach((s) => seen.current.add(s));
     const t = startRef.current ? (Date.now() - startRef.current) / 1000 : 0;
-    setLog((l) => [...l, ...fresh.map((s) => ({ t, text: STAGE_LOG[s] ?? s }))].slice(-6));
+    setLog((l) => [...l, ...fresh.map((s) => ({ t, stage: s }))].slice(-6));
   }, [stages]);
 
   const done = useMemo(() => new Set(stages), [stages]);
@@ -53,10 +48,10 @@ export function ScanProgress({ url, stages, status, className }: { url: string; 
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange opacity-75" />
             <span className="relative inline-flex size-2.5 rounded-full bg-orange" />
           </span>
-          <span className="text-sm font-medium text-white">{queued ? "Queued for analysis" : "Analyzing"}</span>
+          <span className="text-sm font-medium text-white">{queued ? tx.queued : tx.analyzing}</span>
           <span className="truncate font-mono text-xs text-muted-foreground sm:text-sm">{url}</span>
         </div>
-        <span className="font-mono text-xs text-muted-foreground tabular-nums">{elapsed}s</span>
+        <span className="font-mono text-xs text-muted-foreground tabular-nums">{tx.seconds(elapsed)}</span>
       </div>
 
       <div className="relative mt-6 grid gap-6 md:grid-cols-[220px_1fr]">
@@ -70,7 +65,7 @@ export function ScanProgress({ url, stages, status, className }: { url: string; 
           <div className="absolute inset-x-0 inset-y-1/2 h-px -translate-y-1/2 bg-white/[0.06]" />
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-4xl font-semibold tabular-nums text-white">{pct}%</span>
-            <span className="mt-1 text-[11px] tracking-[0.2em] text-muted-foreground uppercase">complete</span>
+            <span className="mt-1 text-[11px] tracking-[0.2em] text-muted-foreground uppercase">{tx.complete}</span>
           </div>
         </div>
 
@@ -85,9 +80,9 @@ export function ScanProgress({ url, stages, status, className }: { url: string; 
                   <span className={cn("flex size-6 items-center justify-center rounded-full", isDone ? "bg-orange text-white" : "bg-white/[0.06] text-muted-foreground")}>
                     {isDone ? <Check className="size-3.5" strokeWidth={3} /> : running ? <Loader2 className="size-3.5 animate-spin" /> : <span className="size-1.5 rounded-full bg-current" />}
                   </span>
-                  <span className={cn("text-sm", isDone ? "text-white" : "text-white/70")}>{s.label}</span>
+                  <span className={cn("text-sm", isDone ? "text-white" : "text-white/70")}>{stageLabel(s.key, locale)}</span>
                 </span>
-                <span className={cn("text-[11px] font-medium tracking-wide uppercase", isDone ? "text-orange" : "text-muted-foreground")}>{isDone ? "Done" : running ? "Running" : "Queued"}</span>
+                <span className={cn("text-[11px] font-medium tracking-wide uppercase", isDone ? "text-orange" : "text-muted-foreground")}>{isDone ? tx.stageDone : running ? tx.stageRunning : tx.stageQueued}</span>
               </motion.li>
             );
           })}
@@ -102,19 +97,19 @@ export function ScanProgress({ url, stages, status, className }: { url: string; 
       {/* Log */}
       <div className="relative mt-4 h-[104px] overflow-hidden rounded-xl border border-white/[0.06] bg-black/40 p-3 font-mono text-[11.5px] leading-5">
         <AnimatePresence initial={false}>
-          {log.length === 0 && <p className="text-muted-foreground">$ innova-scan --isolated {queued ? "(waiting for a free worker)" : "…"}</p>}
+          {log.length === 0 && <p className="text-muted-foreground">$ innova-scan --isolated {queued ? tx.waitingForWorker : "…"}</p>}
           {log.map((l, i) => (
-            <motion.p key={`${l.text}-${i}`} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="truncate text-white/75">
-              <span className="text-orange/80">[+{l.t.toFixed(1)}s]</span> <span className="text-v-safe">✓</span> {l.text}
+            <motion.p key={`${l.stage}-${i}`} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="truncate text-white/75">
+              <span className="text-orange/80">[+{tx.seconds(l.t.toFixed(1))}]</span> <span className="text-v-safe">✓</span> {(tx.stageLog as Record<string, string>)[l.stage] ?? l.stage}
             </motion.p>
           ))}
         </AnimatePresence>
       </div>
 
       <div className="relative mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11.5px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5"><ServerCog className="size-3.5 text-orange" /> Isolated server-side scan</span>
-        <span className="inline-flex items-center gap-1.5"><Lock className="size-3.5 text-orange" /> No scripts executed</span>
-        <span className="inline-flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-orange" /> Your browser never opens the link</span>
+        <span className="inline-flex items-center gap-1.5"><ServerCog className="size-3.5 text-orange" /> {tx.isolated}</span>
+        <span className="inline-flex items-center gap-1.5"><Lock className="size-3.5 text-orange" /> {tx.noScripts}</span>
+        <span className="inline-flex items-center gap-1.5"><ShieldCheck className="size-3.5 text-orange" /> {tx.browserSafe}</span>
       </div>
     </div>
   );

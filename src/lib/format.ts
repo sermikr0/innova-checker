@@ -1,36 +1,57 @@
-export function formatUzs(amount: number): string {
-  return `${new Intl.NumberFormat("en-US").format(amount)} UZS`;
+import { INTL_LOCALE, type Locale } from "@/i18n/config";
+
+// Number and date formatting. Every helper takes the interface language;
+// without one it formats in English.
+
+const nf = (l: Locale) => new Intl.NumberFormat(l === "en" ? "en-US" : INTL_LOCALE[l]);
+const dateFmts = new Map<string, Intl.DateTimeFormat>();
+function dateFmt(l: Locale, withTime: boolean) {
+  const key = `${l}:${withTime}`;
+  let f = dateFmts.get(key);
+  if (!f) {
+    f = new Intl.DateTimeFormat(INTL_LOCALE[l], { day: "2-digit", month: "short", year: "numeric", ...(withTime ? { hour: "2-digit", minute: "2-digit", hourCycle: "h23" } : {}), timeZone: "Asia/Tashkent" });
+    dateFmts.set(key, f);
+  }
+  return f;
 }
 
-export function formatNumber(n: number): string {
-  return new Intl.NumberFormat("en-US").format(n);
+const UZS: Record<Locale, string> = { en: "UZS", ru: "сум", uz: "so‘m" };
+
+export function formatUzs(amount: number, locale: Locale = "en"): string {
+  return `${nf(locale).format(amount)} ${UZS[locale]}`;
 }
 
-const dateFmt = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Tashkent" });
-const dateTimeFmt = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tashkent" });
+export function formatNumber(n: number, locale: Locale = "en"): string {
+  return nf(locale).format(n);
+}
 
-export function formatDate(d: Date | string | null | undefined): string {
+export function formatDate(d: Date | string | null | undefined, locale: Locale = "en"): string {
   if (!d) return "—";
-  return dateFmt.format(new Date(d));
+  return dateFmt(locale, false).format(new Date(d));
 }
 
-export function formatDateTime(d: Date | string | null | undefined): string {
+export function formatDateTime(d: Date | string | null | undefined, locale: Locale = "en"): string {
   if (!d) return "—";
-  return `${dateTimeFmt.format(new Date(d))} (UZT)`;
+  return `${dateFmt(locale, true).format(new Date(d))} (UZT)`;
 }
 
-export function formatDuration(ms: number | null | undefined): string {
+const MS: Record<Locale, [string, string]> = { en: ["ms", "s"], ru: ["мс", "с"], uz: ["ms", "s"] };
+
+export function formatDuration(ms: number | null | undefined, locale: Locale = "en"): string {
   if (ms == null) return "—";
-  return ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`;
+  const [msU, sU] = MS[locale];
+  return ms < 1000 ? `${ms} ${msU}` : `${(ms / 1000).toFixed(1)} ${sU}`;
 }
 
-export function timeAgo(d: Date | string): string {
+const JUST_NOW: Record<Locale, string> = { en: "just now", ru: "только что", uz: "hozirgina" };
+
+export function timeAgo(d: Date | string, locale: Locale = "en"): string {
   const s = Math.round((Date.now() - new Date(d).getTime()) / 1000);
-  if (s < 60) return "just now";
+  if (s < 60) return JUST_NOW[locale];
+  const rtf = new Intl.RelativeTimeFormat(INTL_LOCALE[locale], { numeric: "always", style: "short" });
   const m = Math.round(s / 60);
-  if (m < 60) return `${m} min ago`;
+  if (m < 60) return rtf.format(-m, "minute");
   const h = Math.round(m / 60);
-  if (h < 24) return `${h} h ago`;
-  const days = Math.round(h / 24);
-  return `${days} day${days === 1 ? "" : "s"} ago`;
+  if (h < 24) return rtf.format(-h, "hour");
+  return rtf.format(-Math.round(h / 24), "day");
 }

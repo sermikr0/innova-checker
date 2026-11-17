@@ -2,6 +2,8 @@
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n/client";
+import { adminSettingsText } from "@/i18n/messages/admin-settings";
 
 export function Modal({ trigger, title, description, children, open, onOpenChange, wide = false }: { trigger: React.ReactNode; title: string; description?: string; children: React.ReactNode; open: boolean; onOpenChange: (o: boolean) => void; wide?: boolean }) {
   return (
@@ -64,10 +66,11 @@ export function GhostButton({ children, className, ...rest }: React.ButtonHTMLAt
 
 /** Textarea editing a string[] as one value per line. */
 export function LinesField({ label, hint, value, onChange, rows = 6 }: { label: string; hint?: string; value: string[]; onChange: (v: string[]) => void; rows?: number }) {
+  const t = useT(adminSettingsText);
   return (
     <label className="block space-y-1.5">
       <span className="flex items-baseline justify-between text-[13px] font-medium text-white/85">
-        {label} <span className="text-xs font-normal text-muted-foreground">{value.length} entries</span>
+        {label} <span className="text-xs font-normal text-muted-foreground">{t.entries(value.length)}</span>
       </span>
       <textarea rows={rows} value={value.join("\n")} onChange={(e) => onChange(e.target.value.split("\n").map((s) => s.trim()).filter(Boolean))} className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 font-mono text-[12.5px] text-white outline-none focus:border-orange/60" spellCheck={false} />
       {hint && <span className="block text-xs text-muted-foreground">{hint}</span>}

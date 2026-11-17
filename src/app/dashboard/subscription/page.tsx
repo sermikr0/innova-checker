@@ -8,6 +8,8 @@ import { getLatestSubscription, remainingDays } from "@/server/subscriptions/ser
 import { formatDate, formatDateTime, formatUzs } from "@/lib/format";
 import { hasUnlimitedAccess } from "@/lib/roles";
 import { getSiteAccess } from "@/server/settings";
+import { getLocale, getT } from "@/i18n/server";
+import { dashboardText } from "@/i18n/messages/dashboard";
 
 const STATUS_CLS: Record<string, string> = { ACTIVE: "text-v-safe bg-v-safe/10 ring-v-safe/25", EXPIRED: "text-v-malicious bg-v-malicious/10 ring-v-malicious/25", SUSPENDED: "text-v-suspicious bg-v-suspicious/10 ring-v-suspicious/25", CANCELLED: "text-muted-foreground bg-white/5 ring-white/10", PENDING: "text-sev-info bg-sev-info/10 ring-sev-info/25" };
 
@@ -19,50 +21,52 @@ export default async function SubscriptionPage() {
     prisma.subscriptionHistory.findMany({ where: { userId: s.user.id }, orderBy: { createdAt: "desc" }, take: 20 }),
     getSiteAccess(),
   ]);
+  const [t, locale] = await Promise.all([getT(dashboardText), getLocale()]);
+  const p = t.subscription;
   return (
     <>
-      <PageHeader eyebrow="Your plan" title="Subscription" actions={access.pricing ? <Link href="/pricing" className="inline-flex h-10 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-medium text-white hover:bg-white/[0.07]">View all plans</Link> : undefined} />
+      <PageHeader eyebrow={p.eyebrow} title={p.title} actions={access.pricing ? <Link href="/pricing" className="inline-flex h-10 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-medium text-white hover:bg-white/[0.07]">{p.viewAllPlans}</Link> : undefined} />
       {hasUnlimitedAccess(s.user.role) && (
         <div className="mb-6 rounded-2xl border border-v-trusted/30 bg-v-trusted/[0.06] p-6">
-          <p className="text-lg font-semibold text-v-trusted">Unlimited access</p>
-          <p className="mt-1 text-sm text-white/75">{s.user.role === "SUPER_ADMIN" ? "Super Admin account." : "Your administrator granted this account unlimited use."} No subscription is needed, and there is no device or scan limit.</p>
+          <p className="text-lg font-semibold text-v-trusted">{t.unlimitedAccess}</p>
+          <p className="mt-1 text-sm text-white/75">{s.user.role === "SUPER_ADMIN" ? p.superAdminAccount : p.grantedUnlimited} {p.noSubNeeded}</p>
         </div>
       )}
       {!sub ? (
-        hasUnlimitedAccess(s.user.role) ? null : access.pricing ? <EmptyState icon="CreditCard" title="No subscription yet" text="Buy a plan with Click or Visa / Mastercard. It is activated on this device as soon as the payment is confirmed." action={<Link href="/dashboard/billing" className="btn-orange inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Buy a subscription</Link>} /> : <EmptyState icon="CreditCard" title="No subscription yet" text="Plans are not on sale online right now. Contact Innova Networks and an administrator can activate a plan for your account." action={<Link href="/contact" className="btn-orange inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Contact us</Link>} />
+        hasUnlimitedAccess(s.user.role) ? null : access.pricing ? <EmptyState icon="CreditCard" title={p.noSubYet} text={p.buyText} action={<Link href="/dashboard/billing" className="btn-orange inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">{p.buyCta}</Link>} /> : <EmptyState icon="CreditCard" title={p.noSubYet} text={p.notOnSaleText} action={<Link href="/contact" className="btn-orange inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">{t.contactUs}</Link>} />
       ) : (
         <>
           <div className="surface relative overflow-hidden rounded-3xl p-6 sm:p-8">
             <div className="pointer-events-none absolute -top-20 -right-10 size-64 rounded-full bg-orange/20 blur-3xl" />
             <div className="relative flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">Current plan</p>
+                <p className="text-sm text-muted-foreground">{p.currentPlan}</p>
                 <h2 className="mt-1 text-3xl font-semibold text-white">{sub.plan.name}</h2>
-                <p className="mt-1 text-sm text-white/70">{formatUzs(sub.plan.priceUzs)} · {sub.plan.description}</p>
+                <p className="mt-1 text-sm text-white/70">{formatUzs(sub.plan.priceUzs, locale)} · {sub.plan.description}</p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${STATUS_CLS[sub.status]}`}>{sub.status}</span>
+              <span className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${STATUS_CLS[sub.status]}`}>{t.subStatus[sub.status].toUpperCase()}</span>
             </div>
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard icon="Activity" label="Start date" value={<span className="text-xl">{formatDate(sub.startsAt)}</span>} />
-            <StatCard icon="Activity" label="Expiration date" value={<span className="text-xl">{formatDate(sub.expiresAt)}</span>} />
-            <StatCard highlight icon="Activity" label="Remaining days" value={remainingDays(sub)} sub={sub.status === "ACTIVE" ? "Scanning enabled" : "Scanning disabled"} />
-            <StatCard icon="MonitorSmartphone" label="Device slots used" value={`${used} / ${sub.deviceLimit}`} sub="Registered devices" />
+            <StatCard icon="Activity" label={p.startDate} value={<span className="text-xl">{formatDate(sub.startsAt, locale)}</span>} />
+            <StatCard icon="Activity" label={p.expirationDate} value={<span className="text-xl">{formatDate(sub.expiresAt, locale)}</span>} />
+            <StatCard highlight icon="Activity" label={p.remainingDays} value={remainingDays(sub)} sub={sub.status === "ACTIVE" ? p.scanningEnabled : p.scanningDisabled} />
+            <StatCard icon="MonitorSmartphone" label={p.slotsUsed} value={`${used} / ${sub.deviceLimit}`} sub={p.registeredDevices} />
           </div>
         </>
       )}
       {history.length > 0 && (
         <div className="mt-8">
-          <h2 className="mb-3 text-[15px] font-semibold text-white">Subscription history</h2>
+          <h2 className="mb-3 text-[15px] font-semibold text-white">{p.historyTitle}</h2>
           <ol className="surface divide-y divide-white/[0.05] rounded-2xl">
             {history.map((h) => (
               <li key={h.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 text-sm">
                 <span className="flex items-center gap-3">
                   {h.action === "EXTENDED" ? <Timer className="size-4 text-orange" /> : h.action === "ASSIGNED" ? <CreditCard className="size-4 text-orange" /> : <CalendarClock className="size-4 text-orange" />}
-                  <span className="text-white">{h.action.replace(/_/g, " ").toLowerCase()}</span>
-                  <span className="text-muted-foreground">{h.toPlanName ?? ""}{h.toExpiresAt ? ` · until ${formatDate(h.toExpiresAt)}` : ""}{h.note ? ` · ${h.note}` : ""}</span>
+                  <span className="text-white">{p.actions[h.action]}</span>
+                  <span className="text-muted-foreground">{h.toPlanName ?? ""}{h.toExpiresAt ? ` · ${p.until(formatDate(h.toExpiresAt, locale))}` : ""}{h.note ? ` · ${h.note}` : ""}</span>
                 </span>
-                <span className="text-xs text-muted-foreground">{formatDateTime(h.createdAt)}</span>
+                <span className="text-xs text-muted-foreground">{formatDateTime(h.createdAt, locale)}</span>
               </li>
             ))}
           </ol>

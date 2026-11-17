@@ -6,8 +6,13 @@ import { ScanPending } from "@/components/scan/scan-pending";
 import { getSession } from "@/server/auth/session";
 import { toReportDTO } from "@/server/scans/dto";
 import { getFullReport } from "@/server/scans/service";
+import { getT } from "@/i18n/server";
+import { scanText } from "@/i18n/messages/report-scan";
 
-export const metadata: Metadata = { title: "Security report", robots: { index: false, follow: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT(scanText);
+  return { title: t.metaTitle, robots: { index: false, follow: false } };
+}
 
 export default async function ScanReportPage({ params }: PageProps<"/scan/[id]">) {
   const { id } = await params;

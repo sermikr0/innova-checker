@@ -121,6 +121,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   domainSubmissions   DomainRecord[]        @relation("DomainSubmitter")
   paymentIntents      PaymentIntent[]
+  consents            ClientConsent[]
 
   @@index([role])
   @@index([createdAt])
@@ -307,6 +308,9 @@ model Scan {
   ipHash             String?
   /// Two-letter country of the visitor (Cloudflare CF-IPCountry), when known.
   country            String?           @db.VarChar(2)
+  /// Terms-of-Use acceptance (with name and e-mail) the check was made under.
+  consentId          String?
+  consent            ClientConsent?    @relation(fields: [consentId], references: [id], onDelete: SetNull)
   startedAt          DateTime?
   completedAt        DateTime?
   durationMs         Int?
@@ -324,6 +328,7 @@ model Scan {
   @@index([domain])
   @@index([status, createdAt])
   @@index([createdAt])
+  @@index([consentId])
 }
 
 model ScanResult {
@@ -448,6 +453,10 @@ model SystemSetting {
   loginEnabled              Boolean  @default(true)
   /// Off: plans and prices are hidden from the website and checkout is closed.
   pricingVisible            Boolean  @default(true)
+  /// Before the first check, people accept the Terms of Use and give their name and e-mail.
+  consentRequired           Boolean  @default(true)
+  /// The e-mail must be confirmed with a code (needs SMTP; skipped while SMTP is not configured).
+  consentEmailVerification  Boolean  @default(true)
   sessionTtlHours           Int      @default(168)
   loginMaxAttempts          Int      @default(5)
   deviceRemovalsPer30Days   Int      @default(3)
@@ -720,4 +729,42 @@ model FreeScanUsage {
 
   @@id([key, period])
   @@index([updatedAt])
+}
+
+/// A person's acceptance of the Terms of Use before checking links: their name,
+/// e-mail (confirmed with a code when SMTP is configured) and evidence of the
+/// acceptance (time, terms version, language, IP, browser and device).
+model ClientConsent {
+  id                 String    @id @default(cuid())
+  fullName           String
+  /// Always stored lower-cased.
+  email              String
+  emailVerifiedAt    DateTime?
+  termsVersion       String
+  acceptedAt         DateTime  @default(now())
+  locale             String    @db.VarChar(5)
+  ipAddress          String?
+  country            String?   @db.VarChar(2)
+  userAgent          String?
+  fingerprintHash    String?
+  userId             String?
+  user               User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  /// SHA-256 of the browser token kept in the ic_consent cookie.
+  tokenHash          String    @unique
+  /// HMAC of the pending e-mail code, its expiry and failed attempts.
+  codeHash           String?
+  codeExpiresAt      DateTime?
+  codeAttempts       Int       @default(0)
+  codeSentAt         DateTime?
+  codesSent          Int       @default(0)
+  lastSeenAt         DateTime  @default(now())
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  scans Scan[]
+
+  @@index([email])
+  @@index([fingerprintHash])
+  @@index([userId])
+  @@index([createdAt])
 }

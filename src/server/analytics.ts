@@ -116,6 +116,6 @@ export async function recentChecks(f: RecentFilter, take = 100) {
     where: recentWhere(f),
     orderBy: { createdAt: "desc" },
     take,
-    select: { id: true, inputUrl: true, normalizedUrl: true, domain: true, status: true, verdict: true, riskScore: true, country: true, createdAt: true, user: { select: { email: true, companyName: true } }, anonymousSessionId: true },
+    select: { id: true, inputUrl: true, normalizedUrl: true, domain: true, status: true, verdict: true, riskScore: true, country: true, createdAt: true, user: { select: { email: true, companyName: true } }, consent: { select: { fullName: true, email: true } }, anonymousSessionId: true },
   });
 }

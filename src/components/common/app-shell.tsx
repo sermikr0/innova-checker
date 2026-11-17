@@ -6,6 +6,9 @@ import { useState } from "react";
 import { Activity, BarChart3, CreditCard, Database, FileClock, History, LayoutDashboard, LogOut, Menu, MonitorSmartphone, ScanSearch, Settings, ShieldBan, ShieldCheck, Sliders, Tags, ToggleRight, User, Users, Wallet } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "@/components/brand/logo";
+import { LanguageSwitcher } from "./language-switcher";
+import { useT } from "@/i18n/client";
+import { commonText } from "@/i18n/messages/common";
 import { cn } from "@/lib/utils";
 
 const ICONS = { Activity, BarChart3, CreditCard, Database, FileClock, History, LayoutDashboard, MonitorSmartphone, ScanSearch, Settings, ShieldBan, ShieldCheck, Sliders, Tags, ToggleRight, User, Users, Wallet } as const;
@@ -14,8 +17,9 @@ export type NavItem = { href: string; label: string; icon: IconName; exact?: boo
 
 function NavList({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
   const path = usePathname();
+  const t = useT(commonText);
   return (
-    <nav className="space-y-1" aria-label="Sections">
+    <nav className="space-y-1" aria-label={t.sections}>
       {items.map((it) => {
         const active = it.exact ? path === it.href : path === it.href || path.startsWith(`${it.href}/`);
         const Icon = ICONS[it.icon];
@@ -39,25 +43,27 @@ async function logout() {
 
 export function AppShell({ items, user, area, footer, children }: { items: NavItem[]; user: { fullName: string; email: string; companyName: string; role: string }; area: "dashboard" | "admin"; footer?: React.ReactNode; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const t = useT(commonText);
   const sidebar = (onNavigate?: () => void) => (
     <div className="flex h-full flex-col">
       <div className="px-5 pt-6 pb-2">
         <Logo href={area === "admin" ? "/admin" : "/dashboard"} />
-        {area === "admin" && <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-orange/30 bg-orange/10 px-2.5 py-0.5 text-[10.5px] font-semibold tracking-wider text-orange uppercase"><ShieldCheck className="size-3" /> Super Admin</span>}
-        {area === "dashboard" && user.role === "UNLIMITED" && <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-v-trusted/30 bg-v-trusted/10 px-2.5 py-0.5 text-[10.5px] font-semibold tracking-wider text-v-trusted uppercase"><ShieldCheck className="size-3" /> Unlimited access</span>}
+        {area === "admin" && <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-orange/30 bg-orange/10 px-2.5 py-0.5 text-[10.5px] font-semibold tracking-wider text-orange uppercase"><ShieldCheck className="size-3" /> {t.superAdmin}</span>}
+        {area === "dashboard" && user.role === "UNLIMITED" && <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-v-trusted/30 bg-v-trusted/10 px-2.5 py-0.5 text-[10.5px] font-semibold tracking-wider text-v-trusted uppercase"><ShieldCheck className="size-3" /> {t.unlimitedAccess}</span>}
       </div>
       <div className="flex-1 overflow-y-auto px-3 py-5">
         <NavList items={items} onNavigate={onNavigate} />
         {footer}
       </div>
       <div className="border-t border-white/[0.06] p-3">
+        <LanguageSwitcher size="sm" className="mx-2 mb-2" />
         <div className="flex items-center gap-3 rounded-xl px-2 py-2">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-orange/15 text-sm font-semibold text-orange">{user.fullName.slice(0, 1).toUpperCase()}</span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-medium text-white">{user.fullName}</span>
             <span className="block truncate text-[11.5px] text-muted-foreground">{user.companyName}</span>
           </span>
-          <button type="button" onClick={logout} className="flex size-9 items-center justify-center rounded-lg text-white/50 hover:bg-white/5 hover:text-white" aria-label="Log out" title="Log out">
+          <button type="button" onClick={logout} className="flex size-9 items-center justify-center rounded-lg text-white/50 hover:bg-white/5 hover:text-white" aria-label={t.logOut} title={t.logOut}>
             <LogOut className="size-4" />
           </button>
         </div>
@@ -70,11 +76,11 @@ export function AppShell({ items, user, area, footer, children }: { items: NavIt
       <div className="min-w-0">
         <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-white/[0.06] bg-background/80 px-4 backdrop-blur lg:hidden">
           <Logo compact href={area === "admin" ? "/admin" : "/dashboard"} />
-          <button type="button" onClick={() => setOpen(true)} className="flex size-10 items-center justify-center rounded-xl border border-white/10" aria-label="Open navigation"><Menu className="size-5" /></button>
+          <button type="button" onClick={() => setOpen(true)} className="flex size-10 items-center justify-center rounded-xl border border-white/10" aria-label={t.openNavigation}><Menu className="size-5" /></button>
         </header>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetContent side="left" className="w-[280px] border-white/10 bg-sidebar p-0">
-            <SheetTitle className="sr-only">Navigation</SheetTitle>
+            <SheetTitle className="sr-only">{t.navigation}</SheetTitle>
             {sidebar(() => setOpen(false))}
           </SheetContent>
         </Sheet>

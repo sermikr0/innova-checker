@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { after } from "next/server";
-import { z } from "zod";
+import { ZodError, z } from "zod";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/server/db";
 import { audit, type AuditAction } from "@/server/audit";
@@ -35,12 +35,32 @@ import {
   syncThreatFeeds,
   updateDomainRecord,
 } from "@/server/domain-intel/service";
-import { emailSchema, passwordSchema } from "@/lib/validation";
+import { emailSchema, localizeValidation, passwordSchema } from "@/lib/validation";
+import { getLocale, getT } from "@/i18n/server";
+import { adminActionsText } from "@/i18n/messages/admin-actions";
 
 async function admin() {
   const s = await getSession();
-  if (!s || s.user.role !== "SUPER_ADMIN") throw new ApiError(403, "FORBIDDEN", "Super Admin access required.");
+  if (!s || s.user.role !== "SUPER_ADMIN") throw new ApiError(403, "FORBIDDEN", (await getT(adminActionsText)).forbidden);
   return s.user;
+}
+
+/**
+ * guard() with validation messages in the interface language: the schemas below keep
+ * their English messages, which are mapped here (and by localizeValidation for the
+ * shared e-mail / password schemas) before guard() turns them into the result.
+ */
+function guardT<T>(fn: () => Promise<ActionResult<T>>): Promise<ActionResult<T>> {
+  return guard(async () => {
+    try {
+      return await fn();
+    } catch (e) {
+      if (!(e instanceof ZodError)) throw e;
+      const locale = await getLocale();
+      const own = adminActionsText[locale].validation;
+      throw new ZodError(e.issues.map((i) => ({ ...i, message: own[i.message] ?? localizeValidation(i.message, locale) })));
+    }
+  });
 }
 
 async function log(actor: { id: string; email: string }, action: AuditAction, target: { type?: string; id?: string; label?: string }, metadata?: Record<string, unknown>) {
@@ -62,95 +82,103 @@ const UserCreate = z.object({
 });
 
 export async function createUserAction(input: unknown): Promise<ActionResult<{ id: string }>> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const d = UserCreate.parse(input);
-    if (await prisma.user.findUnique({ where: { email: d.email } })) return { ok: false, error: "A user with this e-mail already exists.", fields: { email: "Already in use." } };
+    if (await prisma.user.findUnique({ where: { email: d.email } })) return { ok: false, error: t.emailExists, fields: { email: t.inUse } };
     const u = await prisma.user.create({ data: { fullName: d.fullName, email: d.email, companyName: d.companyName, role: d.role, passwordHash: await hashPassword(d.password) } });
     await log(actor, "USER_CREATED", { type: "User", id: u.id, label: u.email }, { role: d.role });
-    return { ok: true, message: "User created", data: { id: u.id } };
+    return { ok: true, message: t.userCreated, data: { id: u.id } };
   });
 }
 
 const UserUpdate = z.object({ id, fullName: z.string().trim().min(2).max(120), email: emailSchema, companyName: z.string().trim().min(2).max(160), role: z.enum(["USER", "UNLIMITED", "SUPER_ADMIN"]) });
 
 export async function updateUserAction(input: unknown): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const d = UserUpdate.parse(input);
     const before = await prisma.user.findUniqueOrThrow({ where: { id: d.id } });
-    if (before.id === actor.id && d.role !== "SUPER_ADMIN") return { ok: false, error: "You cannot remove your own Super Admin role." };
+    if (before.id === actor.id && d.role !== "SUPER_ADMIN") return { ok: false, error: t.ownRole };
     const clash = await prisma.user.findUnique({ where: { email: d.email } });
-    if (clash && clash.id !== d.id) return { ok: false, error: "Another user already uses this e-mail.", fields: { email: "Already in use." } };
+    if (clash && clash.id !== d.id) return { ok: false, error: t.emailTaken, fields: { email: t.inUse } };
     await prisma.user.update({ where: { id: d.id }, data: { fullName: d.fullName, email: d.email, companyName: d.companyName, role: d.role } });
     await log(actor, before.role !== d.role ? "USER_ROLE_CHANGED" : "USER_UPDATED", { type: "User", id: d.id, label: d.email }, { from: { email: before.email, role: before.role }, to: { email: d.email, role: d.role } });
-    return { ok: true, message: "User updated" };
+    return { ok: true, message: t.userUpdated };
   });
 }
 
 /** Grants or removes unlimited usage (no subscription, device or scan limits) for a regular user. */
 export async function setUnlimitedAccessAction(userId: string, unlimited: boolean): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const u = await prisma.user.findUniqueOrThrow({ where: { id: id.parse(userId) } });
-    if (u.role === "SUPER_ADMIN") return { ok: false, error: "Super Admins already have unlimited access. Change their role in the edit form if needed." };
+    if (u.role === "SUPER_ADMIN") return { ok: false, error: t.superAdminUnlimited };
     const role = unlimited ? "UNLIMITED" : "USER";
-    if (u.role === role) return { ok: true, message: unlimited ? "Already unlimited" : "Already a regular user" };
+    if (u.role === role) return { ok: true, message: unlimited ? t.alreadyUnlimited : t.alreadyRegular };
     await prisma.user.update({ where: { id: u.id }, data: { role } });
     await log(actor, "USER_ROLE_CHANGED", { type: "User", id: u.id, label: u.email }, { from: u.role, to: role });
-    return { ok: true, message: unlimited ? `${u.email} now has unlimited access` : `Unlimited access removed from ${u.email}` };
+    return { ok: true, message: unlimited ? t.unlimitedGranted(u.email) : t.unlimitedRemoved(u.email) };
   });
 }
 
 export async function setUserActiveAction(userId: string, active: boolean): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
-    if (userId === actor.id && !active) return { ok: false, error: "You cannot deactivate your own account." };
+    if (userId === actor.id && !active) return { ok: false, error: t.ownDeactivate };
     const u = await prisma.user.update({ where: { id: id.parse(userId) }, data: { isActive: active } });
     if (!active) await prisma.session.updateMany({ where: { userId, revokedAt: null }, data: { revokedAt: new Date() } });
     await log(actor, active ? "USER_ACTIVATED" : "USER_DEACTIVATED", { type: "User", id: u.id, label: u.email });
-    return { ok: true, message: active ? "Account activated" : "Account deactivated and signed out" };
+    return { ok: true, message: active ? t.accountActivated : t.accountDeactivated };
   });
 }
 
 export async function deleteUserAction(userId: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
-    if (userId === actor.id) return { ok: false, error: "You cannot delete your own account." };
+    if (userId === actor.id) return { ok: false, error: t.ownDelete };
     const u = await prisma.user.findUniqueOrThrow({ where: { id: id.parse(userId) } });
     await log(actor, "USER_DELETED", { type: "User", id: u.id, label: u.email }, { role: u.role, company: u.companyName });
     await prisma.user.delete({ where: { id: u.id } });
-    return { ok: true, message: "User deleted" };
+    return { ok: true, message: t.userDeleted };
   });
 }
 
 export async function adminResetPasswordAction(userId: string, password: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const pw = passwordSchema.parse(password);
     const now = new Date();
     const u = await prisma.user.update({ where: { id: id.parse(userId) }, data: { passwordHash: await hashPassword(pw), passwordChangedAt: now } });
     await prisma.session.updateMany({ where: { userId, revokedAt: null }, data: { revokedAt: now } });
     await log(actor, "USER_PASSWORD_RESET", { type: "User", id: u.id, label: u.email }, { byAdmin: true });
-    return { ok: true, message: "Password reset; the user was signed out everywhere" };
+    return { ok: true, message: t.passwordReset };
   });
 }
 
 export async function adminRevokeDeviceAction(userId: string, deviceId: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const h = await headers();
     await revokeDevice({ deviceId: id.parse(deviceId), userId: id.parse(userId), actor, reason: "ADMIN", ip: clientIp(h), userAgent: userAgent(h) });
-    return { ok: true, message: "Device revoked" };
+    return { ok: true, message: t.deviceRevoked };
   });
 }
 
 export async function adminRevokeSessionsAction(userId: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const r = await prisma.session.updateMany({ where: { userId: id.parse(userId), revokedAt: null }, data: { revokedAt: new Date() } });
     await log(actor, "SESSION_REVOKED", { type: "User", id: userId }, { count: r.count });
-    return { ok: true, message: `Signed out ${r.count} session(s)` };
+    return { ok: true, message: t.sessionsRevoked(r.count) };
   });
 }
 
@@ -168,67 +196,74 @@ const date = z.string().min(8).max(40).transform((v, ctx) => {
 const Assign = z.object({ userId: id, planId: id, startsAt: date.optional(), expiresAt: date.optional(), deviceLimit: z.coerce.number().int().min(1).max(1000).optional(), note: z.string().trim().max(500).optional() });
 
 export async function assignSubscriptionAction(input: unknown): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const d = Assign.parse(input);
     const sub = await assignSubscription({ ...d, actor });
     const u = await prisma.user.findUnique({ where: { id: d.userId }, select: { email: true } });
     await log(actor, "SUBSCRIPTION_ASSIGNED", { type: "Subscription", id: sub.id, label: u?.email }, { plan: sub.plan.name, expiresAt: sub.expiresAt });
-    return { ok: true, message: `${sub.plan.name} assigned` };
+    return { ok: true, message: t.assigned(sub.plan.name) };
   });
 }
 
 export async function changePlanAction(subId: string, planId: string, recomputeExpiry: boolean): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const sub = await changePlan(id.parse(subId), id.parse(planId), { recomputeExpiry, actor });
     await log(actor, "SUBSCRIPTION_CHANGED", { type: "Subscription", id: sub.id }, { plan: sub.plan.name, recomputeExpiry });
-    return { ok: true, message: "Plan changed" };
+    return { ok: true, message: t.planChanged };
   });
 }
 
 export async function extendSubscriptionAction(subId: string, value: number, unit: "DAY" | "MONTH" | "YEAR"): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const sub = await extendSubscription(id.parse(subId), z.coerce.number().int().parse(value), z.enum(["DAY", "MONTH", "YEAR"]).parse(unit), actor);
     await log(actor, "SUBSCRIPTION_EXTENDED", { type: "Subscription", id: sub.id }, { by: `${value} ${unit}`, expiresAt: sub.expiresAt });
-    return { ok: true, message: "Subscription extended" };
+    return { ok: true, message: t.extended };
   });
 }
 
 export async function setExpiryAction(subId: string, expiresAt: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const sub = await setExpiry(id.parse(subId), date.parse(expiresAt), actor);
     await log(actor, "SUBSCRIPTION_EXPIRY_SET", { type: "Subscription", id: sub.id }, { expiresAt: sub.expiresAt });
-    return { ok: true, message: "Expiration date updated" };
+    return { ok: true, message: t.expiryUpdated };
   });
 }
 
 export async function setSubscriptionStatusAction(subId: string, status: "ACTIVE" | "SUSPENDED" | "CANCELLED"): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const st = z.enum(["ACTIVE", "SUSPENDED", "CANCELLED"]).parse(status);
     const sub = await setSubscriptionStatus(id.parse(subId), st, actor);
     await log(actor, st === "ACTIVE" ? "SUBSCRIPTION_ACTIVATED" : st === "SUSPENDED" ? "SUBSCRIPTION_SUSPENDED" : "SUBSCRIPTION_DEACTIVATED", { type: "Subscription", id: sub.id }, { status: st });
-    return { ok: true, message: `Subscription ${st === "ACTIVE" ? "activated" : st === "SUSPENDED" ? "suspended" : "deactivated"}` };
+    return { ok: true, message: t.subStatus[st] };
   });
 }
 
 export async function updateDeviceLimitAction(subId: string, limit: number): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const sub = await updateDeviceLimit(id.parse(subId), z.coerce.number().int().parse(limit), actor);
     await log(actor, "SUBSCRIPTION_CHANGED", { type: "Subscription", id: sub.id }, { deviceLimit: sub.deviceLimit });
-    return { ok: true, message: "Device limit updated" };
+    return { ok: true, message: t.deviceLimitUpdated };
   });
 }
 
 export async function expireLapsedAction(): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     await admin();
     const n = await expireLapsed();
-    return { ok: true, message: `${n} lapsed subscription(s) marked expired` };
+    return { ok: true, message: t.lapsedExpired(n) };
   });
 }
 
@@ -254,57 +289,61 @@ async function onlyOneRecommended(tx: Prisma.TransactionClient, keepId: string) 
 }
 
 export async function createPlanAction(input: unknown): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const d = Plan.parse(input);
-    if (await prisma.subscriptionPlan.findUnique({ where: { slug: d.slug } })) return { ok: false, error: "Slug already in use.", fields: { slug: "Already in use." } };
+    if (await prisma.subscriptionPlan.findUnique({ where: { slug: d.slug } })) return { ok: false, error: t.slugInUse, fields: { slug: t.inUse } };
     const p = await prisma.$transaction(async (tx) => {
       const p = await tx.subscriptionPlan.create({ data: d });
       if (d.isRecommended) await onlyOneRecommended(tx, p.id);
       return p;
     });
     await log(actor, "PLAN_CREATED", { type: "SubscriptionPlan", id: p.id, label: p.name }, d);
-    return { ok: true, message: "Plan created" };
+    return { ok: true, message: t.planCreated };
   });
 }
 
 export async function updatePlanAction(planId: string, input: unknown): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const d = Plan.parse(input);
     const before = await prisma.subscriptionPlan.findUniqueOrThrow({ where: { id: id.parse(planId) } });
     const clash = await prisma.subscriptionPlan.findUnique({ where: { slug: d.slug } });
-    if (clash && clash.id !== planId) return { ok: false, error: "Slug already in use.", fields: { slug: "Already in use." } };
+    if (clash && clash.id !== planId) return { ok: false, error: t.slugInUse, fields: { slug: t.inUse } };
     await prisma.$transaction(async (tx) => {
       await tx.subscriptionPlan.update({ where: { id: planId }, data: d });
       if (d.isRecommended) await onlyOneRecommended(tx, planId);
     });
     await log(actor, "PLAN_UPDATED", { type: "SubscriptionPlan", id: planId, label: d.name }, { from: { priceUzs: before.priceUzs, deviceLimit: before.deviceLimit, durationValue: before.durationValue, durationUnit: before.durationUnit, isActive: before.isActive }, to: { priceUzs: d.priceUzs, deviceLimit: d.deviceLimit, durationValue: d.durationValue, durationUnit: d.durationUnit, isActive: d.isActive } });
-    return { ok: true, message: "Plan updated. Existing subscriptions keep their terms." };
+    return { ok: true, message: t.planUpdated };
   });
 }
 
 export async function deletePlanAction(planId: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const p = await prisma.subscriptionPlan.findUniqueOrThrow({ where: { id: id.parse(planId) }, include: { _count: { select: { subscriptions: true } } } });
-    if (p._count.subscriptions > 0) return { ok: false, error: `This plan is used by ${p._count.subscriptions} subscription(s). Disable it instead of deleting.` };
+    if (p._count.subscriptions > 0) return { ok: false, error: t.planInUse(p._count.subscriptions) };
     await prisma.subscriptionPlan.delete({ where: { id: planId } });
     await log(actor, "PLAN_DELETED", { type: "SubscriptionPlan", id: planId, label: p.name });
-    return { ok: true, message: "Plan deleted" };
+    return { ok: true, message: t.planDeleted };
   });
 }
 
 const Pricing = z.object({ paymentNotice: z.string().trim().min(5).max(300), ctaLabel: z.string().trim().min(2).max(40), highlightLabel: z.string().trim().min(2).max(40), showComparison: z.boolean() });
 
 export async function updatePricingConfigAction(input: unknown): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const d = Pricing.parse(input);
     await prisma.pricingConfiguration.upsert({ where: { id: "default" }, update: { ...d, updatedById: actor.id }, create: { id: "default", ...d, updatedById: actor.id } });
     invalidateSettingsCache();
     await log(actor, "PRICING_SETTINGS_UPDATED", { type: "PricingConfiguration", id: "default" }, d);
-    return { ok: true, message: "Pricing settings saved" };
+    return { ok: true, message: t.pricingSaved };
   });
 }
 
@@ -327,53 +366,58 @@ const DomainRec = z.object({
 });
 
 export async function saveDomainRecordAction(recordId: string | null, input: unknown): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const d = DomainRec.parse(input);
-    if (d.verifiedAt && Number.isNaN(d.verifiedAt.getTime())) return { ok: false, error: "Invalid verification date." };
+    if (d.verifiedAt && Number.isNaN(d.verifiedAt.getTime())) return { ok: false, error: t.invalidVerificationDate };
     if (recordId) await updateDomainRecord(id.parse(recordId), d, actor);
     else await createDomainRecord({ ...d, origin: "ADMIN" }, actor);
-    return { ok: true, message: recordId ? "Record updated" : "Record added" };
+    return { ok: true, message: recordId ? t.recordUpdated : t.recordAdded };
   });
 }
 
 export async function deleteDomainRecordAction(recordId: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     await deleteDomainRecord(id.parse(recordId), actor);
-    return { ok: true, message: "Record deleted" };
+    return { ok: true, message: t.recordDeleted };
   });
 }
 
 export async function reviewDomainRecordAction(recordId: string, decision: "APPROVE" | "REJECT", note?: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     await reviewDomainRecord(id.parse(recordId), z.enum(["APPROVE", "REJECT"]).parse(decision), actor, note?.slice(0, 500));
-    return { ok: true, message: decision === "APPROVE" ? "Approved and activated" : "Rejected" };
+    return { ok: true, message: decision === "APPROVE" ? t.approved : t.rejected };
   });
 }
 
 export async function importDomainsCsvAction(text: string, overwrite: boolean): Promise<ActionResult<Awaited<ReturnType<typeof importCsv>>>> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
-    if (text.length > 5_000_000) return { ok: false, error: "File is too large (5 MB maximum)." };
+    if (text.length > 5_000_000) return { ok: false, error: t.fileTooLarge };
     const r = await importCsv(text, actor, { overwrite });
-    return { ok: true, message: `Imported: ${r.created} new, ${r.updated} updated, ${r.skipped} skipped, ${r.pendingForMissingEvidence} set to pending (missing evidence), ${r.errors.length} error(s)`, data: r };
+    return { ok: true, message: t.imported(r.created, r.updated, r.skipped, r.pendingForMissingEvidence, r.errors.length), data: r };
   });
 }
 
 // Jobs run in the background (after the response) so the admin UI never blocks on them;
 // progress is polled from /api/admin/jobs.
 export async function runDomainJobAction(job: "revalidate" | "feeds"): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const urlhaus = (await resolveProviderKeys()).urlhaus;
     const r =
       job === "revalidate"
         ? await startJob("domain-revalidation", `manual:${actor.email}`, (progress) => revalidateDomains({ limit: 300, onProgress: progress }), (task) => after(task))
         : await startJob("threat-feed-sync", `manual:${actor.email}`, (progress) => syncThreatFeeds({ urlhaus }, progress), (task) => after(task));
-    if (!r.started) return { ok: false, error: "This job is already running. Progress is shown above the table." };
-    return { ok: true, message: `${job === "revalidate" ? "Revalidation" : "Threat-feed sync"} started in the background. You can keep working.` };
+    if (!r.started) return { ok: false, error: t.jobRunning };
+    return { ok: true, message: job === "revalidate" ? t.jobStarted.revalidate : t.jobStarted.feeds };
   });
 }
 
@@ -399,7 +443,8 @@ const Scanner = z.object({
 });
 
 export async function updateScannerConfigAction(input: unknown): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const d = Scanner.parse(input);
     const modules = Object.fromEntries(MODULE_KEYS.map((k) => [k, d.modules[k] ?? true]));
@@ -412,18 +457,19 @@ export async function updateScannerConfigAction(input: unknown): Promise<ActionR
     });
     invalidateSettingsCache();
     await log(actor, "SCANNER_CONFIG_UPDATED", { type: "ScannerConfiguration", id: "default" }, { modules, providers, weights, maxRedirects: d.maxRedirects, requestTimeoutMs: d.requestTimeoutMs, scanTimeoutMs: d.scanTimeoutMs });
-    return { ok: true, message: "Scanner configuration saved; it applies to the next scan" };
+    return { ok: true, message: t.scannerSaved };
   });
 }
 
 export async function resetScannerDefaultsAction(): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const data = scannerCreateData();
     await prisma.scannerConfiguration.upsert({ where: { id: "default" }, update: { ...data, id: undefined, updatedById: actor.id }, create: data });
     invalidateSettingsCache();
     await log(actor, "SCANNER_CONFIG_UPDATED", { type: "ScannerConfiguration", id: "default" }, { reset: true });
-    return { ok: true, message: "Scanner configuration reset to defaults" };
+    return { ok: true, message: t.scannerReset };
   });
 }
 
@@ -446,7 +492,8 @@ const System = z.object({
 });
 
 export async function updateSystemSettingsAction(input: unknown): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const d = System.parse(input);
     const before = await prisma.systemSetting.findUnique({ where: { id: "default" } });
@@ -454,7 +501,7 @@ export async function updateSystemSettingsAction(input: unknown): Promise<Action
     const changed = before ? Object.fromEntries(Object.entries(d).filter(([k, v]) => (before as Record<string, unknown>)[k] !== v).map(([k, v]) => [k, { from: (before as Record<string, unknown>)[k], to: v }])) : d;
     invalidateSettingsCache();
     await log(actor, "SYSTEM_SETTINGS_UPDATED", { type: "SystemSetting", id: "default" }, { changed });
-    return { ok: true, message: "Settings saved" };
+    return { ok: true, message: t.settingsSaved };
   });
 }
 
@@ -465,6 +512,8 @@ const SiteControls = z
     loginEnabled: z.boolean(),
     registrationEnabled: z.boolean(),
     pricingVisible: z.boolean(),
+    consentRequired: z.boolean(),
+    consentEmailVerification: z.boolean(),
     freeScanMode: z.enum(["UNLIMITED", "DAILY", "TOTAL"]),
     freeScanLimit: z.coerce.number().int().min(0).max(100),
     anonymousIpDailyLimit: z.coerce.number().int().min(1).max(100_000),
@@ -472,40 +521,42 @@ const SiteControls = z
   .partial()
   .strict();
 
-const SITE_CONTROL_LABELS: Record<string, string> = { loginEnabled: "Client sign-in", registrationEnabled: "Registration", pricingVisible: "Pricing section" };
-
 /** Saves one or more site switches; each toggle on the page saves on its own. */
 export async function updateSiteControlsAction(input: unknown): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const d = SiteControls.parse(input);
-    if (!Object.keys(d).length) return { ok: true, message: "Nothing to save" };
+    if (!Object.keys(d).length) return { ok: true, message: t.nothingToSave };
     const before = await prisma.systemSetting.findUnique({ where: { id: "default" } });
     await prisma.systemSetting.upsert({ where: { id: "default" }, update: { ...d, updatedById: actor.id }, create: { id: "default", ...d, updatedById: actor.id } });
     invalidateSettingsCache();
     const changed = Object.fromEntries(Object.entries(d).filter(([k, v]) => (before as Record<string, unknown> | null)?.[k] !== v).map(([k, v]) => [k, { from: (before as Record<string, unknown> | null)?.[k] ?? null, to: v }]));
     await log(actor, "SITE_CONTROLS_UPDATED", { type: "SystemSetting", id: "default" }, { changed });
     const keys = Object.keys(d);
-    if (keys.length === 1 && keys[0] in SITE_CONTROL_LABELS) return { ok: true, message: `${SITE_CONTROL_LABELS[keys[0]]} ${(d as Record<string, boolean>)[keys[0]] ? "turned on" : "turned off"}` };
-    return { ok: true, message: "Free-check policy saved" };
+    const SITE_CONTROL_LABELS: Record<string, string> = t.siteControlLabels;
+    if (keys.length === 1 && keys[0] in SITE_CONTROL_LABELS) return { ok: true, message: t.toggled(SITE_CONTROL_LABELS[keys[0]], !!(d as Record<string, boolean>)[keys[0]]) };
+    return { ok: true, message: t.freePolicySaved };
   });
 }
 
 /** Ends every active session of non-admin accounts (used together with switching client sign-in off). */
 export async function signOutAllClientsAction(): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const r = await prisma.session.updateMany({ where: { revokedAt: null, user: { role: { not: "SUPER_ADMIN" } } }, data: { revokedAt: new Date() } });
     await log(actor, "CLIENT_SESSIONS_REVOKED", { type: "Session" }, { count: r.count });
-    return { ok: true, message: r.count ? `${r.count} client session${r.count === 1 ? "" : "s"} signed out` : "No client was signed in" };
+    return { ok: true, message: r.count ? t.clientsSignedOut(r.count) : t.noClientSignedIn };
   });
 }
 
 export async function markMessageHandledAction(messageId: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     await admin();
     await prisma.contactMessage.update({ where: { id: id.parse(messageId) }, data: { handledAt: new Date() } });
-    return { ok: true, message: "Marked as handled" };
+    return { ok: true, message: t.markedHandled };
   });
 }
 
@@ -515,15 +566,16 @@ const ProviderIdSchema = z.enum(["googleSafeBrowsing", "virusTotal", "urlhaus", 
 const ApiKeySchema = z.string().trim().min(16, "This does not look like an API key.").max(200).regex(/^[A-Za-z0-9_\-.:]+$/, "API keys contain only letters, digits and - _ . :");
 
 export async function saveProviderKeyAction(provider: string, apiKey: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const p = ProviderIdSchema.parse(provider);
     const key = ApiKeySchema.parse(apiKey);
-    let note = "saved";
+    let note = t.keyNoteSaved;
     if (p === "virusTotal") {
       try {
         const q = await fetchVirusTotalQuota(key);
-        note = `validated with VirusTotal (daily ${q.daily?.used ?? "?"}/${q.daily?.allowed ?? "?"})`;
+        note = t.keyNoteValidated(q.daily?.used ?? "?", q.daily?.allowed ?? "?");
       } catch (e) {
         if (e instanceof ProviderKeyError) return { ok: false, error: e.message };
         throw e;
@@ -532,27 +584,29 @@ export async function saveProviderKeyAction(provider: string, apiKey: string): P
     await saveProviderKey(p, key, actor.id);
     if (p === "virusTotal") await refreshVirusTotalQuota(0).catch(() => null);
     await log(actor, "INTEGRATION_KEY_UPDATED", { type: "ProviderCredential", id: p, label: p }, { keyHint: key.slice(-4) });
-    return { ok: true, message: `API key ${note}. New scans use it immediately.` };
+    return { ok: true, message: t.keySaved(note) };
   });
 }
 
 export async function removeProviderKeyAction(provider: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     const p = ProviderIdSchema.parse(provider);
     await removeProviderKey(p);
     await log(actor, "INTEGRATION_KEY_REMOVED", { type: "ProviderCredential", id: p, label: p });
-    return { ok: true, message: "Stored key removed. The environment variable is used if set." };
+    return { ok: true, message: t.keyRemoved };
   });
 }
 
 export async function refreshVtQuotaAction(): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     await admin();
     try {
       const q = await refreshVirusTotalQuota(0);
-      if (!q) return { ok: false, error: "No VirusTotal key is configured." };
-      return { ok: true, message: "Quota refreshed" };
+      if (!q) return { ok: false, error: t.noVtKey };
+      return { ok: true, message: t.quotaRefreshed };
     } catch (e) {
       if (e instanceof ProviderKeyError) return { ok: false, error: e.message };
       throw e;
@@ -563,9 +617,10 @@ export async function refreshVtQuotaAction(): Promise<ActionResult> {
 // ─── Security ─────────────────────────────────────────────────────────────────
 
 export async function unblockIpAction(blockId: string): Promise<ActionResult> {
-  return guard(async () => {
+  return guardT(async () => {
+    const t = await getT(adminActionsText);
     const actor = await admin();
     await unblockIp(id.parse(blockId), actor, clientIp(await headers()));
-    return { ok: true, message: "IP unblocked" };
+    return { ok: true, message: t.ipUnblocked };
   });
 }

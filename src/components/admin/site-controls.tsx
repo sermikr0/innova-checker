@@ -1,12 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { LogOut } from "lucide-react";
+import { ArrowRight, LogOut } from "lucide-react";
 import { Field } from "@/components/common/field";
 import { useAction } from "@/components/common/use-action";
 import { ConfirmButton } from "@/components/common/confirm-button";
 import { signOutAllClientsAction, updateSiteControlsAction } from "@/app/admin/actions";
 import { freePolicyLong, type FreeScanModeKey } from "@/lib/site-access";
+import { useLocale, useT } from "@/i18n/client";
+import { siteControlsText } from "@/i18n/messages/admin-site-controls";
 import { cn } from "@/lib/utils";
 import { PrimaryButton, SelectField } from "./controls";
 
@@ -14,19 +17,14 @@ export type SiteControlsForm = {
   loginEnabled: boolean;
   registrationEnabled: boolean;
   pricingVisible: boolean;
+  consentRequired: boolean;
+  consentEmailVerification: boolean;
   freeScanMode: FreeScanModeKey;
   freeScanLimit: number;
   anonymousIpDailyLimit: number;
 };
 
-const PRESETS: { label: string; mode: FreeScanModeKey; limit: number }[] = [
-  { label: "Unlimited", mode: "UNLIMITED", limit: 1 },
-  { label: "1 per day", mode: "DAILY", limit: 1 },
-  { label: "2 per day", mode: "DAILY", limit: 2 },
-  { label: "3 per day", mode: "DAILY", limit: 3 },
-  { label: "1 total, then paid", mode: "TOTAL", limit: 1 },
-  { label: "Paid only", mode: "TOTAL", limit: 0 },
-];
+type SwitchKey = "loginEnabled" | "registrationEnabled" | "pricingVisible" | "consentRequired" | "consentEmailVerification";
 
 function Switch({ title, description, on, onLabel, offLabel, note, disabled, onChange }: { title: string; description: string; on: boolean; onLabel: string; offLabel: string; note?: string; disabled?: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -46,67 +44,66 @@ function Switch({ title, description, on, onLabel, offLabel, note, disabled, onC
   );
 }
 
-export function SiteControlsPanel({ initial, today }: { initial: SiteControlsForm; today: { devices: number; exhausted: number } }) {
+export function SiteControlsPanel({ initial, today, smtpReady }: { initial: SiteControlsForm; today: { devices: number; exhausted: number }; smtpReady: boolean }) {
+  const t = useT(siteControlsText);
+  const locale = useLocale();
   const [f, setF] = useState(initial);
   const { run, pending } = useAction();
 
   // Switches save on their own; on failure the switch flips back.
-  const flip = (key: "loginEnabled" | "registrationEnabled" | "pricingVisible") => async (v: boolean) => {
+  const flip = (key: SwitchKey) => async (v: boolean) => {
     setF((p) => ({ ...p, [key]: v }));
     const r = await run(() => updateSiteControlsAction({ [key]: v }));
     if (!r.ok) setF((p) => ({ ...p, [key]: !v }));
   };
+  const presets: { label: string; mode: FreeScanModeKey; limit: number }[] = [
+    { label: t.presets.unlimited, mode: "UNLIMITED", limit: 1 },
+    { label: t.presets.perDay(1), mode: "DAILY", limit: 1 },
+    { label: t.presets.perDay(2), mode: "DAILY", limit: 2 },
+    { label: t.presets.perDay(3), mode: "DAILY", limit: 3 },
+    { label: t.presets.oneTotal, mode: "TOTAL", limit: 1 },
+    { label: t.presets.paidOnly, mode: "TOTAL", limit: 0 },
+  ];
   const policy = { freeMode: f.freeScanMode, freeLimit: f.freeScanLimit };
   const section = "surface rounded-2xl p-6";
 
   return (
     <div className="space-y-5">
       <section className={section}>
-        <h2 className="text-[15px] font-semibold text-white">Website access</h2>
-        <p className="mt-1 mb-4 text-xs text-muted-foreground">Each switch applies immediately to the live website.</p>
+        <h2 className="text-[15px] font-semibold text-white">{t.accessTitle}</h2>
+        <p className="mt-1 mb-4 text-xs text-muted-foreground">{t.accessHint}</p>
         <div className="space-y-3">
-          <Switch
-            title="Client sign-in"
-            on={f.loginEnabled}
-            onLabel="Open"
-            offLabel="Closed"
-            disabled={pending}
-            description="Off: the Log in and Register buttons disappear from the website and clients cannot sign in. Super Admins can always sign in at /login. Clients who are already signed in stay signed in unless you sign them out below."
-            onChange={flip("loginEnabled")}
-          />
-          <Switch
-            title="Registration (new clients)"
-            on={f.registrationEnabled}
-            onLabel="Open"
-            offLabel="Closed"
-            disabled={pending}
-            description="Off: new accounts cannot be created and the Register / Get started buttons are hidden. On: anyone can create an account."
-            note={f.registrationEnabled && !f.loginEnabled ? "Registration is closed while client sign-in is off." : undefined}
-            onChange={flip("registrationEnabled")}
-          />
-          <Switch
-            title="Pricing section"
-            on={f.pricingVisible}
-            onLabel="Visible"
-            offLabel="Hidden"
-            disabled={pending}
-            description="Off: the Pricing page returns 404, plans disappear from the home page and the menu, View plans links are removed and online checkout is closed. You can still preview /pricing as Super Admin."
-            onChange={flip("pricingVisible")}
-          />
+          <Switch title={t.loginTitle} on={f.loginEnabled} onLabel={t.open} offLabel={t.closed} disabled={pending} description={t.loginDesc} onChange={flip("loginEnabled")} />
+          <Switch title={t.registrationTitle} on={f.registrationEnabled} onLabel={t.open} offLabel={t.closed} disabled={pending} description={t.registrationDesc} note={f.registrationEnabled && !f.loginEnabled ? t.registrationNote : undefined} onChange={flip("registrationEnabled")} />
+          <Switch title={t.pricingTitle} on={f.pricingVisible} onLabel={t.visible} offLabel={t.hidden} disabled={pending} description={t.pricingDesc} onChange={flip("pricingVisible")} />
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/[0.06] px-4 py-3">
-          <p className="text-xs text-muted-foreground">Sign out every client right now (Super Admin sessions are kept).</p>
-          <ConfirmButton action={signOutAllClientsAction} title="Sign out all clients?" description="Every active session of non-admin accounts ends now. Clients can sign in again only while client sign-in is open." confirmLabel="Sign out all" destructive className="h-9 border border-v-malicious/40 px-3 text-v-malicious hover:bg-v-malicious/10">
-            <LogOut className="size-4" /> Sign out all clients
+          <p className="text-xs text-muted-foreground">{t.signOutHint}</p>
+          <ConfirmButton action={signOutAllClientsAction} title={t.signOutTitle} description={t.signOutDesc} confirmLabel={t.signOutConfirm} destructive className="h-9 border border-v-malicious/40 px-3 text-v-malicious hover:bg-v-malicious/10">
+            <LogOut className="size-4" /> {t.signOutButton}
           </ConfirmButton>
         </div>
       </section>
 
       <section className={section}>
-        <h2 className="text-[15px] font-semibold text-white">Free checks without a subscription</h2>
-        <p className="mt-1 mb-4 text-xs text-muted-foreground">Applies to visitors and to signed-in users without a plan, counted per device (private windows and new accounts on the same device share it). Subscribers and Unlimited users are not affected.</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-[15px] font-semibold text-white">{t.consentTitle}</h2>
+            <p className="mt-1 mb-4 max-w-2xl text-xs text-muted-foreground">{t.consentHint}</p>
+          </div>
+          <Link href="/admin/consents" className="inline-flex items-center gap-1.5 text-sm font-medium text-orange hover:underline">{t.viewAcceptances} <ArrowRight className="size-4" /></Link>
+        </div>
+        <div className="space-y-3">
+          <Switch title={t.consentRequiredTitle} on={f.consentRequired} onLabel={t.on} offLabel={t.off} disabled={pending} description={t.consentRequiredDesc} onChange={flip("consentRequired")} />
+          <Switch title={t.verifyTitle} on={f.consentEmailVerification} onLabel={t.on} offLabel={t.off} disabled={pending} description={t.verifyDesc} note={f.consentEmailVerification && !smtpReady ? t.smtpMissing : undefined} onChange={flip("consentEmailVerification")} />
+        </div>
+      </section>
+
+      <section className={section}>
+        <h2 className="text-[15px] font-semibold text-white">{t.freeTitle}</h2>
+        <p className="mt-1 mb-4 text-xs text-muted-foreground">{t.freeHint}</p>
         <div className="mb-4 flex flex-wrap gap-2">
-          {PRESETS.map((p) => {
+          {presets.map((p) => {
             const active = f.freeScanMode === p.mode && (p.mode === "UNLIMITED" || f.freeScanLimit === p.limit);
             return (
               <button key={p.label} type="button" onClick={() => setF({ ...f, freeScanMode: p.mode, freeScanLimit: p.mode === "UNLIMITED" ? f.freeScanLimit : p.limit })} className={cn("h-9 rounded-xl border px-3.5 text-sm transition-colors", active ? "border-orange/60 bg-orange/15 font-medium text-white" : "border-white/10 text-white/75 hover:bg-white/5")}>
@@ -117,27 +114,25 @@ export function SiteControlsPanel({ initial, today }: { initial: SiteControlsFor
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <SelectField
-            label="Mode"
+            label={t.mode}
             value={f.freeScanMode}
             onChange={(v) => setF({ ...f, freeScanMode: v as FreeScanModeKey })}
             options={[
-              { value: "UNLIMITED", label: "Unlimited (free for everyone)" },
-              { value: "DAILY", label: "Daily allowance (renews 00:00)" },
-              { value: "TOTAL", label: "One-time allowance, then paid" },
+              { value: "UNLIMITED", label: t.modeUnlimited },
+              { value: "DAILY", label: t.modeDaily },
+              { value: "TOTAL", label: t.modeTotal },
             ]}
           />
-          <Field id="free-scan-limit" label={f.freeScanMode === "DAILY" ? "Free checks per day" : "Free checks in total"} type="number" min={0} max={100} disabled={f.freeScanMode === "UNLIMITED"} value={f.freeScanLimit} onChange={(e) => setF({ ...f, freeScanLimit: Number(e.target.value) })} hint="0 = subscription required" />
-          <Field id="ip-daily-limit" label="Visitor checks per network per day" type="number" min={1} value={f.anonymousIpDailyLimit} onChange={(e) => setF({ ...f, anonymousIpDailyLimit: Number(e.target.value) })} hint={f.freeScanMode === "UNLIMITED" ? "Unlimited mode uses at least 1000 (anti-abuse)." : "Offices behind one IP share this ceiling."} />
+          <Field id="free-scan-limit" label={f.freeScanMode === "DAILY" ? t.limitPerDay : t.limitTotal} type="number" min={0} max={100} disabled={f.freeScanMode === "UNLIMITED"} value={f.freeScanLimit} onChange={(e) => setF({ ...f, freeScanLimit: Number(e.target.value) })} hint={t.limitHint} />
+          <Field id="ip-daily-limit" label={t.networkLimit} type="number" min={1} value={f.anonymousIpDailyLimit} onChange={(e) => setF({ ...f, anonymousIpDailyLimit: Number(e.target.value) })} hint={f.freeScanMode === "UNLIMITED" ? t.networkHintUnlimited : t.networkHint} />
         </div>
         <p className="mt-4 rounded-xl border border-orange/25 bg-orange/[0.06] px-4 py-3 text-sm text-white/85">
-          <span className="font-medium text-white">Visitors will see: </span>
-          {freePolicyLong(policy)}
+          <span className="font-medium text-white">{t.visitorsSee}</span>
+          {freePolicyLong(policy, locale)}
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-muted-foreground">
-            {f.freeScanMode === "DAILY" ? `Today: ${today.devices} device${today.devices === 1 ? "" : "s"} used free checks, ${today.exhausted} reached the limit.` : `So far: ${today.devices} device${today.devices === 1 ? "" : "s"} used free checks, ${today.exhausted} reached the limit.`}
-          </p>
-          <PrimaryButton pending={pending} onClick={() => run(() => updateSiteControlsAction({ freeScanMode: f.freeScanMode, freeScanLimit: f.freeScanLimit, anonymousIpDailyLimit: f.anonymousIpDailyLimit }))}>Save free-check policy</PrimaryButton>
+          <p className="text-xs text-muted-foreground">{f.freeScanMode === "DAILY" ? t.todayStats(today.devices, today.exhausted) : t.totalStats(today.devices, today.exhausted)}</p>
+          <PrimaryButton pending={pending} onClick={() => run(() => updateSiteControlsAction({ freeScanMode: f.freeScanMode, freeScanLimit: f.freeScanLimit, anonymousIpDailyLimit: f.anonymousIpDailyLimit }))}>{t.saveFree}</PrimaryButton>
         </div>
       </section>
     </div>

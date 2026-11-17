@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useT } from "@/i18n/client";
+import { scanText } from "@/i18n/messages/report-scan";
 import { ScanProgress } from "./scan-progress";
 
 /** Shown while a scan is still running; refreshes the server page when it finishes. */
 export function ScanPending({ id, url }: { id: string; url: string }) {
+  const t = useT(scanText);
   const router = useRouter();
   const [state, setState] = useState<{ stages: string[]; status: string }>({ stages: [], status: "PENDING" });
   const [lost, setLost] = useState(false);
@@ -41,8 +44,8 @@ export function ScanPending({ id, url }: { id: string; url: string }) {
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
       {lost ? (
         <div className="surface rounded-2xl p-8 text-center">
-          <p className="text-white">We lost track of this scan.</p>
-          <Link href="/" className="mt-4 inline-block text-orange hover:underline">Start a new scan</Link>
+          <p className="text-white">{t.lostTrack}</p>
+          <Link href="/" className="mt-4 inline-block text-orange hover:underline">{t.startNew}</Link>
         </div>
       ) : (
         <ScanProgress url={url} stages={state.stages} status={state.status} />

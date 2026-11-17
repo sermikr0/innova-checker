@@ -7,7 +7,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { Field, postJson } from "@/components/common/field";
-import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "@/lib/validation";
+import { forgotPasswordSchema, localizeValidation, loginSchema, registerSchema, resetPasswordSchema } from "@/lib/validation";
+import { useLocale, useT } from "@/i18n/client";
+import { authText } from "@/i18n/messages/auth";
+import { consentText } from "@/i18n/messages/consent";
+import { TERMS_VERSION } from "@/i18n/messages/legal-types";
+import { TermsCheckbox } from "@/components/consent/terms-checkbox";
 
 function FormError({ message }: { message: string | null }) {
   if (!message) return null;
@@ -30,14 +35,22 @@ function applyFieldErrors<T extends FieldValues>(setError: UseFormSetError<T>, f
   for (const [k, v] of Object.entries(fields ?? {})) setError(k as Path<T>, { message: v });
 }
 
+/** Schema messages (from zod or the API) in the current language. */
+function useLocalizeError() {
+  const locale = useLocale();
+  return <M extends string | null | undefined>(message: M) => localizeValidation(message, locale);
+}
+
 export function LoginForm({ next, notice }: { next?: string; notice?: string | null }) {
+  const t = useT(authText).form;
+  const le = useLocalizeError();
   const [error, setError] = useState<string | null>(null);
   const form = useForm<z.input<typeof loginSchema>>({ resolver: zodResolver(loginSchema), defaultValues: { email: "", password: "" } });
   const onSubmit = form.handleSubmit(async (values) => {
     setError(null);
     const r = await postJson<{ redirect: string }>("/api/auth/login", { ...values, next });
     if (!r.ok) {
-      setError(r.message);
+      setError(le(r.message));
       applyFieldErrors(form.setError, r.fields);
       return;
     }
@@ -47,24 +60,33 @@ export function LoginForm({ next, notice }: { next?: string; notice?: string | n
     <form onSubmit={onSubmit} noValidate className="space-y-4">
       {notice && <p className="flex items-center gap-2 rounded-xl border border-v-safe/30 bg-v-safe/[0.08] px-3.5 py-3 text-sm text-v-safe"><CheckCircle2 className="size-4" /> {notice}</p>}
       <FormError message={error} />
-      <Field label="Work e-mail" type="email" autoComplete="email" {...form.register("email")} error={form.formState.errors.email?.message} />
-      <Field label="Password" type="password" autoComplete="current-password" {...form.register("password")} error={form.formState.errors.password?.message} />
+      <Field label={t.workEmail} type="email" autoComplete="email" {...form.register("email")} error={le(form.formState.errors.email?.message)} />
+      <Field label={t.password} type="password" autoComplete="current-password" {...form.register("password")} error={le(form.formState.errors.password?.message)} />
       <div className="flex justify-end">
-        <Link href="/forgot-password" className="text-[13px] text-orange hover:underline">Forgot password?</Link>
+        <Link href="/forgot-password" className="text-[13px] text-orange hover:underline">{t.forgotPassword}</Link>
       </div>
-      <Submit busy={form.formState.isSubmitting}>Log in</Submit>
+      <Submit busy={form.formState.isSubmitting}>{t.logIn}</Submit>
     </form>
   );
 }
 
 export function RegisterForm({ minLength }: { minLength: number }) {
+  const t = useT(authText).form;
+  const ct = useT(consentText);
+  const le = useLocalizeError();
   const [error, setError] = useState<string | null>(null);
+  const [accepted, setAccepted] = useState(false);
+  const [acceptError, setAcceptError] = useState<string | null>(null);
   const form = useForm<z.input<typeof registerSchema>>({ resolver: zodResolver(registerSchema), defaultValues: { fullName: "", email: "", companyName: "", password: "", confirmPassword: "" } });
   const onSubmit = form.handleSubmit(async (values) => {
     setError(null);
-    const r = await postJson<{ redirect: string }>("/api/auth/register", values);
+    if (!accepted) {
+      setAcceptError(ct.errors.acceptRequired);
+      return;
+    }
+    const r = await postJson<{ redirect: string }>("/api/auth/register", { ...values, acceptTerms: true, termsVersion: TERMS_VERSION });
     if (!r.ok) {
-      setError(r.message);
+      setError(le(r.message));
       applyFieldErrors(form.setError, r.fields);
       return;
     }
@@ -74,20 +96,20 @@ export function RegisterForm({ minLength }: { minLength: number }) {
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
       <FormError message={error} />
-      <Field label="Full name" autoComplete="name" {...form.register("fullName")} error={e.fullName?.message} />
-      <Field label="Work e-mail" type="email" autoComplete="email" {...form.register("email")} error={e.email?.message} />
-      <Field label="Company name" autoComplete="organization" {...form.register("companyName")} error={e.companyName?.message} />
-      <Field label="Password" type="password" autoComplete="new-password" hint={minLength > 1 ? `At least ${minLength} characters.` : undefined} {...form.register("password")} error={e.password?.message} />
-      <Field label="Confirm password" type="password" autoComplete="new-password" {...form.register("confirmPassword")} error={e.confirmPassword?.message} />
-      <p className="text-xs leading-relaxed text-muted-foreground">
-        By creating an account you agree to the <Link href="/terms" className="text-orange hover:underline">Terms</Link> and <Link href="/privacy" className="text-orange hover:underline">Privacy policy</Link>.
-      </p>
-      <Submit busy={form.formState.isSubmitting}>Create account</Submit>
+      <Field label={t.fullName} autoComplete="name" {...form.register("fullName")} error={le(e.fullName?.message)} />
+      <Field label={t.workEmail} type="email" autoComplete="email" {...form.register("email")} error={le(e.email?.message)} />
+      <Field label={t.companyName} autoComplete="organization" {...form.register("companyName")} error={le(e.companyName?.message)} />
+      <Field label={t.password} type="password" autoComplete="new-password" hint={minLength > 1 ? t.passwordHint(minLength) : undefined} {...form.register("password")} error={le(e.password?.message)} />
+      <Field label={t.confirmPassword} type="password" autoComplete="new-password" {...form.register("confirmPassword")} error={le(e.confirmPassword?.message)} />
+      <TermsCheckbox checked={accepted} onChange={(v) => { setAccepted(v); setAcceptError(null); }} error={acceptError} />
+      <Submit busy={form.formState.isSubmitting}>{t.createAccount}</Submit>
     </form>
   );
 }
 
 export function ForgotPasswordForm() {
+  const t = useT(authText).form;
+  const le = useLocalizeError();
   const [done, setDone] = useState<{ message: string; devResetUrl?: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const form = useForm<z.input<typeof forgotPasswordSchema>>({ resolver: zodResolver(forgotPasswordSchema), defaultValues: { email: "" } });
@@ -95,7 +117,7 @@ export function ForgotPasswordForm() {
     setError(null);
     const r = await postJson<{ message: string; devResetUrl?: string }>("/api/auth/forgot-password", values);
     if (!r.ok) {
-      setError(r.message);
+      setError(le(r.message));
       return;
     }
     setDone(r.data);
@@ -106,32 +128,34 @@ export function ForgotPasswordForm() {
         <p className="flex items-start gap-2 rounded-xl border border-v-safe/30 bg-v-safe/[0.08] px-3.5 py-3 text-sm text-v-safe"><CheckCircle2 className="mt-0.5 size-4 shrink-0" /> {done.message}</p>
         {done.devResetUrl && (
           <div className="rounded-xl border border-v-suspicious/30 bg-v-suspicious/[0.06] p-3.5 text-xs text-white/80">
-            <p className="font-semibold text-v-suspicious">Development mode: SMTP is not configured</p>
-            <p className="mt-1">The reset link is shown here only in local development:</p>
+            <p className="font-semibold text-v-suspicious">{t.devModeTitle}</p>
+            <p className="mt-1">{t.devModeText}</p>
             <a href={done.devResetUrl} className="mt-2 block font-mono break-all text-orange hover:underline">{done.devResetUrl}</a>
           </div>
         )}
-        <Link href="/login" className="block text-center text-sm text-orange hover:underline">Back to log in</Link>
+        <Link href="/login" className="block text-center text-sm text-orange hover:underline">{t.backToLogin}</Link>
       </div>
     );
   }
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
       <FormError message={error} />
-      <Field label="Work e-mail" type="email" autoComplete="email" {...form.register("email")} error={form.formState.errors.email?.message} />
-      <Submit busy={form.formState.isSubmitting}>Send reset link</Submit>
+      <Field label={t.workEmail} type="email" autoComplete="email" {...form.register("email")} error={le(form.formState.errors.email?.message)} />
+      <Submit busy={form.formState.isSubmitting}>{t.sendResetLink}</Submit>
     </form>
   );
 }
 
 export function ResetPasswordForm({ token }: { token: string }) {
+  const t = useT(authText).form;
+  const le = useLocalizeError();
   const [error, setError] = useState<string | null>(null);
   const form = useForm<z.input<typeof resetPasswordSchema>>({ resolver: zodResolver(resetPasswordSchema), defaultValues: { token, password: "", confirmPassword: "" } });
   const onSubmit = form.handleSubmit(async (values) => {
     setError(null);
     const r = await postJson<{ redirect: string }>("/api/auth/reset-password", values);
     if (!r.ok) {
-      setError(r.message);
+      setError(le(r.message));
       applyFieldErrors(form.setError, r.fields);
       return;
     }
@@ -139,11 +163,11 @@ export function ResetPasswordForm({ token }: { token: string }) {
   });
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
-      <FormError message={error ?? (form.formState.errors.token ? "This reset link is invalid. Request a new one." : null)} />
+      <FormError message={error ?? (form.formState.errors.token ? t.invalidResetLink : null)} />
       <input type="hidden" {...form.register("token")} />
-      <Field label="New password" type="password" autoComplete="new-password" {...form.register("password")} error={form.formState.errors.password?.message} />
-      <Field label="Confirm new password" type="password" autoComplete="new-password" {...form.register("confirmPassword")} error={form.formState.errors.confirmPassword?.message} />
-      <Submit busy={form.formState.isSubmitting}>Set new password</Submit>
+      <Field label={t.newPassword} type="password" autoComplete="new-password" {...form.register("password")} error={le(form.formState.errors.password?.message)} />
+      <Field label={t.confirmNewPassword} type="password" autoComplete="new-password" {...form.register("confirmPassword")} error={le(form.formState.errors.confirmPassword?.message)} />
+      <Submit busy={form.formState.isSubmitting}>{t.setNewPassword}</Submit>
     </form>
   );
 }

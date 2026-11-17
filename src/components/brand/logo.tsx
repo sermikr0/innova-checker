@@ -1,5 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useT } from "@/i18n/client";
+import { logoText } from "@/i18n/messages/system-pages";
 import { cn } from "@/lib/utils";
 
 export function LogoMark({ className, size = 32 }: { className?: string; size?: number }) {
@@ -8,8 +12,9 @@ export function LogoMark({ className, size = 32 }: { className?: string; size?: 
 
 /** Product lock-up: Innova hexagon + "Innova Checker" wordmark. */
 export function Logo({ href = "/", className, compact = false }: { href?: string; className?: string; compact?: boolean }) {
+  const t = useT(logoText);
   return (
-    <Link href={href} className={cn("group inline-flex items-center gap-2.5", className)} aria-label="Innova Checker home">
+    <Link href={href} className={cn("group inline-flex items-center gap-2.5", className)} aria-label={t.homeLabel}>
       <LogoMark size={34} className="transition-transform duration-500 group-hover:rotate-[60deg]" />
       {!compact && (
         <span className="flex flex-col leading-none">

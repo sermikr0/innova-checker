@@ -1,5 +1,7 @@
 import { Lock, Radar, ScrollText, ShieldCheck } from "lucide-react";
 import { ScanBox, type ScanAccess } from "@/components/scan/scan-box";
+import { getT } from "@/i18n/server";
+import { homeText } from "@/i18n/messages/home";
 
 function HeroBackdrop() {
   return (
@@ -16,23 +18,24 @@ function HeroBackdrop() {
   );
 }
 
-export function Hero({ signedIn, access }: { signedIn: boolean; access: ScanAccess }) {
+export async function Hero({ signedIn, access }: { signedIn: boolean; access: ScanAccess }) {
+  const t = (await getT(homeText)).hero;
   return (
     <section id="scan" className="relative scroll-mt-20">
       <HeroBackdrop />
       <div className="relative mx-auto max-w-7xl px-4 pt-16 pb-16 sm:px-6 sm:pt-24 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs text-white/80 backdrop-blur">
-            <span className="rounded-full bg-orange px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white uppercase">New</span>
-            Phishing protection built for logistics teams
+            <span className="rounded-full bg-orange px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white uppercase">{t.badge}</span>
+            {t.tagline}
           </span>
           <h1 className="mt-7 text-5xl leading-[1.02] font-semibold tracking-[-0.03em] sm:text-7xl lg:text-[84px]">
-            <span className="text-gradient-silver">Know Before </span>
-            <span className="text-gradient-silver">You </span>
-            <span className="text-gradient-orange">Click.</span>
+            <span className="text-gradient-silver">{t.title.first}</span>
+            <span className="text-gradient-silver">{t.title.second}</span>
+            <span className="text-gradient-orange">{t.title.highlight}</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/65 sm:text-lg">
-            Advanced URL security intelligence to detect phishing, scams, malicious websites, and suspicious links before they become a threat.
+            {t.subtitle}
           </p>
         </div>
 
@@ -41,10 +44,10 @@ export function Hero({ signedIn, access }: { signedIn: boolean; access: ScanAcce
         </div>
 
         <div className="mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-3 text-[13px] text-white/60">
-          <span className="inline-flex items-center gap-2"><Radar className="size-4 text-orange" /> 8 analysis modules</span>
-          <span className="inline-flex items-center gap-2"><Lock className="size-4 text-orange" /> Isolated, no script execution</span>
-          <span className="inline-flex items-center gap-2"><ScrollText className="size-4 text-orange" /> Evidence for every check</span>
-          <span className="inline-flex items-center gap-2"><ShieldCheck className="size-4 text-orange" /> No fabricated verdicts</span>
+          <span className="inline-flex items-center gap-2"><Radar className="size-4 text-orange" /> {t.points.modules}</span>
+          <span className="inline-flex items-center gap-2"><Lock className="size-4 text-orange" /> {t.points.isolated}</span>
+          <span className="inline-flex items-center gap-2"><ScrollText className="size-4 text-orange" /> {t.points.evidence}</span>
+          <span className="inline-flex items-center gap-2"><ShieldCheck className="size-4 text-orange" /> {t.points.noFabricated}</span>
         </div>
       </div>
     </section>

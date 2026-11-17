@@ -9,43 +9,45 @@ import { getPublicPlans, platformStats } from "@/server/plans";
 import { getPricingConfig, getSiteAccess } from "@/server/settings";
 import { freePolicyLong, freePolicyShort } from "@/lib/site-access";
 import { paymentsAvailable } from "@/server/payments/config";
+import { getLocale, getT } from "@/i18n/server";
+import { homeText } from "@/i18n/messages/home";
 
 export default async function HomePage() {
-  const [session, stats, plans, pricing, access] = await Promise.all([getSession(), platformStats(), getPublicPlans(), getPricingConfig(), getSiteAccess()]);
+  const [session, stats, plans, pricing, access, locale, { page: t }] = await Promise.all([getSession(), platformStats(), getPublicPlans(), getPricingConfig(), getSiteAccess(), getLocale(), getT(homeText)]);
   const preview = ["monthly", "annual", "quarterly"].map((s) => plans.find((p) => p.slug === s)).filter((p) => !!p);
   const previewPlans = preview.length === 3 ? preview : plans.slice(0, 3);
 
   return (
     <>
-      <Hero signedIn={!!session} access={{ login: access.login, register: access.register, pricing: access.pricing, note: freePolicyShort(access) }} />
+      <Hero signedIn={!!session} access={{ login: access.login, register: access.register, pricing: access.pricing, note: freePolicyShort(access, locale) }} />
 
-      <section className="relative mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8" aria-label="Example report">
+      <section className="relative mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8" aria-label={t.exampleReportLabel}>
         <ReportPreview />
       </section>
 
       <StatsSection scans={stats.scans} threats={stats.threats} />
 
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-        <SectionHeading eyebrow="How it works" title="From suspicious link to clear answer in seconds" subtitle="No installation, no browser extension, no risk of opening the page yourself." />
+        <SectionHeading eyebrow={t.howItWorks.eyebrow} title={t.howItWorks.title} subtitle={t.howItWorks.subtitle} />
         <div className="mt-14">
           <HowItWorks />
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="Advanced detection" title={<>Eight engines. <span className="text-gradient-orange">One verdict.</span></>} subtitle="Every scan runs the full analysis pipeline and shows exactly which checks fired, why, and where the data came from." />
+        <SectionHeading eyebrow={t.detection.eyebrow} title={<>{t.detection.title.before}<span className="text-gradient-orange">{t.detection.title.highlight}</span></>} subtitle={t.detection.subtitle} />
         <div className="mt-14">
           <FeatureGrid />
         </div>
         <div className="mt-8 text-center">
           <Link href="/features" className="inline-flex items-center gap-1.5 text-sm font-medium text-orange hover:underline">
-            Explore all detection features <ArrowRight className="size-4" />
+            {t.exploreFeatures} <ArrowRight className="size-4" />
           </Link>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-        <SectionHeading eyebrow="Why Innova Checker" title="Made for the people who open freight links all day" subtitle="Generic URL scanners are built for researchers. Innova Checker is built for dispatchers, brokers, forwarders and accountants." />
+        <SectionHeading eyebrow={t.why.eyebrow} title={t.why.title} subtitle={t.why.subtitle} />
         <div className="mt-14">
           <WhyInnova />
         </div>
@@ -54,22 +56,22 @@ export default async function HomePage() {
       {access.pricing && (
       <section className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="pointer-events-none absolute top-24 right-0 h-[420px] w-[420px] rounded-full bg-orange/[0.12] blur-[120px]" />
-        <SectionHeading eyebrow="Pricing" title="Simple plans in Uzbekistani so'm" subtitle="Every plan includes the full analysis engine. Plans differ only in duration and the number of devices." />
+        <SectionHeading eyebrow={t.pricing.eyebrow} title={t.pricing.title} subtitle={t.pricing.subtitle} />
         <div className="relative mt-14">
           <PricingCards plans={previewPlans} notice={pricing.paymentNotice} ctaLabel={pricing.ctaLabel} highlightLabel={pricing.highlightLabel} checkout={paymentsAvailable()} compact />
         </div>
         <div className="mt-8 text-center">
           <Link href="/pricing" className="inline-flex items-center gap-1.5 text-sm font-medium text-orange hover:underline">
-            Compare all {plans.length} plans <ArrowRight className="size-4" />
+            {t.compareAll(plans.length)} <ArrowRight className="size-4" />
           </Link>
         </div>
       </section>
       )}
 
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-        <SectionHeading eyebrow="FAQ" title="Questions, answered" />
+        <SectionHeading eyebrow={t.faqEyebrow} title={t.faqTitle} />
         <div className="mt-12">
-          <FaqSection freeAnswer={freePolicyLong(access)} />
+          <FaqSection freeAnswer={freePolicyLong(access, locale)} />
         </div>
       </section>
 

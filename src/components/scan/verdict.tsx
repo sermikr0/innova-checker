@@ -1,8 +1,14 @@
+"use client";
+
 import { BadgeCheck, CircleAlert, TriangleAlert, CircleCheck, CircleHelp, OctagonAlert, ShieldAlert, ShieldCheck } from "lucide-react";
-import { CHECK_STATUS, INTEL_STATUS, SEVERITY, VERDICTS, noticeFor, type CheckStatusKey, type SeverityKey, type VerdictKey } from "@/lib/verdict";
+import { CHECK_STATUS, INTEL_STATUS, SEVERITY, VERDICTS, checkStatusLabel, intelStatusLabel, labelFor, noticeFor, severityLabel, type CheckStatusKey, type SeverityKey, type VerdictKey } from "@/lib/verdict";
 import { cn } from "@/lib/utils";
+import { useLocale, useT } from "@/i18n/client";
+import { scanText } from "@/i18n/messages/report-scan";
 
 export function RiskGauge({ score, verdict, size = 168 }: { score: number; verdict: VerdictKey; size?: number }) {
+  const t = useT(scanText);
+  const locale = useLocale();
   const stroke = Math.max(8, Math.round(size / 15));
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
@@ -11,7 +17,7 @@ export function RiskGauge({ score, verdict, size = 168 }: { score: number; verdi
   const color = VERDICTS[verdict].color;
   const id = `g-${verdict}-${size}`;
   return (
-    <div className="relative" style={{ width: size, height: size }} role="img" aria-label={`Risk score ${score} of 100, ${VERDICTS[verdict].label}`}>
+    <div className="relative" style={{ width: size, height: size }} role="img" aria-label={t.gaugeLabel(score, labelFor(verdict, false, locale))}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="rotate-[129.6deg]">
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
@@ -45,37 +51,45 @@ const VERDICT_ICON: Record<VerdictKey, typeof ShieldCheck> = {
 };
 
 export function VerdictBadge({ verdict, size = "md", className, label }: { verdict: VerdictKey; size?: "sm" | "md" | "lg"; className?: string; label?: string }) {
+  const locale = useLocale();
   const v = VERDICTS[verdict];
   const Icon = VERDICT_ICON[verdict];
   return (
     <span className={cn("inline-flex items-center gap-1.5 rounded-full font-semibold ring-1", v.text, v.bg, v.ring, size === "sm" && "px-2 py-0.5 text-[11px]", size === "md" && "px-3 py-1 text-xs", size === "lg" && "px-4 py-1.5 text-sm tracking-wide uppercase", className)}>
       <Icon className={size === "lg" ? "size-4" : "size-3.5"} />
-      {label ?? v.label}
+      {label ?? labelFor(verdict, false, locale)}
     </span>
   );
 }
 
 export function StatusChip({ status }: { status: string }) {
-  const s = CHECK_STATUS[status as CheckStatusKey] ?? CHECK_STATUS.INFO;
-  return <span className={cn("inline-flex shrink-0 items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium whitespace-nowrap ring-1", s.cls)}>{s.label}</span>;
+  const locale = useLocale();
+  const key = CHECK_STATUS[status as CheckStatusKey] ? status : "INFO";
+  const s = CHECK_STATUS[key as CheckStatusKey];
+  return <span className={cn("inline-flex shrink-0 items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium whitespace-nowrap ring-1", s.cls)}>{checkStatusLabel(key, locale)}</span>;
 }
 
 export function SeverityChip({ severity }: { severity: string }) {
-  const s = SEVERITY[severity as SeverityKey] ?? SEVERITY.NONE;
-  return <span className={cn("inline-flex shrink-0 items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium ring-1", s.cls)}>{s.label}</span>;
+  const locale = useLocale();
+  const key = SEVERITY[severity as SeverityKey] ? severity : "NONE";
+  const s = SEVERITY[key as SeverityKey];
+  return <span className={cn("inline-flex shrink-0 items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium ring-1", s.cls)}>{severityLabel(key, locale)}</span>;
 }
 
 export function IntelChip({ status }: { status: string }) {
-  const s = INTEL_STATUS[status] ?? INTEL_STATUS.UNKNOWN;
-  return <span className={cn("inline-flex shrink-0 items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium whitespace-nowrap ring-1", s.cls)}>{s.label}</span>;
+  const locale = useLocale();
+  const key = INTEL_STATUS[status] ? status : "UNKNOWN";
+  const s = INTEL_STATUS[key];
+  return <span className={cn("inline-flex shrink-0 items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium whitespace-nowrap ring-1", s.cls)}>{intelStatusLabel(key, locale)}</span>;
 }
 
 /** The short red notice shown under every result. */
 export function VerdictNotice({ verdict, deadLink = false, blacklisted = false, className }: { verdict: VerdictKey; deadLink?: boolean; blacklisted?: boolean; className?: string }) {
+  const locale = useLocale();
   return (
     <p className={cn("flex items-start gap-2 text-sm leading-snug font-bold text-v-malicious", className)} role="note">
       <TriangleAlert className="mt-0.5 size-4 shrink-0" />
-      <span>{noticeFor(verdict, deadLink, blacklisted)}</span>
+      <span>{noticeFor(verdict, deadLink, blacklisted, locale)}</span>
     </p>
   );
 }

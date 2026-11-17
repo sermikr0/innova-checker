@@ -15,6 +15,8 @@ import { createSession } from "@/server/auth/session";
 import { safeNextPath } from "@/server/auth/redirect";
 import { claimAnonymousScans } from "@/server/scans/service";
 import { loginSchema } from "@/lib/validation";
+import { getT } from "@/i18n/server";
+import { authErrorsText } from "@/i18n/messages/auth-errors";
 
 const Body = loginSchema.extend({ next: z.string().max(300).optional() });
 
@@ -27,19 +29,20 @@ export const POST = route(async (req) => {
   const ua = userAgent(h);
   const fp = requireFingerprint(h);
   const settings = await getSystemSettings();
+  const t = await getT(authErrorsText);
 
   const perIp = await hitRateLimit(`login:ip:${hmac(ip)}`, 40, 15 * 60);
-  if (!perIp.ok) throw new ApiError(429, "RATE_LIMITED", "Too many sign-in attempts from this network. Please wait and try again.");
+  if (!perIp.ok) throw new ApiError(429, "RATE_LIMITED", t.loginRateLimited);
   const lockKey = `login:acct:${body.email}`;
   const lockWindow = settings.loginLockoutMinutes * 60;
   const perAccount = await hitRateLimit(lockKey, settings.loginMaxAttempts, lockWindow);
   if (!perAccount.ok) {
-    throw new ApiError(429, "ACCOUNT_LOCKED", `Too many failed attempts for this account. Try again in about ${Math.ceil(perAccount.retryAfterSec / 60)} minute(s) or reset your password.`);
+    throw new ApiError(429, "ACCOUNT_LOCKED", t.accountLocked(Math.ceil(perAccount.retryAfterSec / 60)));
   }
 
   const fail = async () => {
     if (await recordAuthFailure(ip, { email: body.email, userAgent: ua })) await assertIpNotBlocked(ip);
-    return new ApiError(401, "INVALID_CREDENTIALS", "Incorrect e-mail or password.");
+    return new ApiError(401, "INVALID_CREDENTIALS", t.invalidCredentials);
   };
   const user = await prisma.user.findUnique({ where: { email: body.email } });
   if (!user) {
@@ -51,11 +54,11 @@ export const POST = route(async (req) => {
     await audit({ action: "USER_LOGIN_FAILED", targetType: "User", targetId: user.id, targetLabel: user.email, metadata: { reason: "bad_password" }, ip, userAgent: ua });
     throw await fail();
   }
-  if (!user.isActive) throw new ApiError(403, "ACCOUNT_DISABLED", "This account has been deactivated. Contact your administrator.");
+  if (!user.isActive) throw new ApiError(403, "ACCOUNT_DISABLED", t.accountDisabled);
   // Client sign-in can be switched off in Admin → Site controls; administrators always get in.
   if (!settings.loginEnabled && user.role !== "SUPER_ADMIN") {
     await audit({ action: "USER_LOGIN_FAILED", targetType: "User", targetId: user.id, targetLabel: user.email, metadata: { reason: "login_disabled" }, ip, userAgent: ua });
-    throw new ApiError(403, "LOGIN_DISABLED", "Sign-in is temporarily unavailable. Please try again later or contact Innova Networks.");
+    throw new ApiError(403, "LOGIN_DISABLED", t.loginDisabled);
   }
 
   const jar = await cookies();

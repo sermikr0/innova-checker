@@ -4,12 +4,16 @@ import { forwardRef, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { deviceHeaders } from "@/lib/device-fingerprint";
+import { isLocale, type Locale } from "@/i18n/config";
+import { useT } from "@/i18n/client";
+import { commonText } from "@/i18n/messages/common";
 
 type Props = React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string; hint?: string };
 
 /** Labelled input with error text, styled for the dark UI. */
 export const Field = forwardRef<HTMLInputElement, Props>(function Field({ label, error, hint, id, className, type, ...rest }, ref) {
   const [show, setShow] = useState(false);
+  const t = useT(commonText);
   const inputId = id ?? rest.name;
   const isPassword = type === "password";
   return (
@@ -32,7 +36,7 @@ export const Field = forwardRef<HTMLInputElement, Props>(function Field({ label,
           {...rest}
         />
         {isPassword && (
-          <button type="button" onClick={() => setShow((s) => !s)} className="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg text-white/50 hover:text-white" aria-label={show ? "Hide password" : "Show password"}>
+          <button type="button" onClick={() => setShow((s) => !s)} className="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg text-white/50 hover:text-white" aria-label={show ? t.hidePassword : t.showPassword}>
             {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
           </button>
         )}
@@ -63,14 +67,20 @@ export const TextArea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttrib
   );
 });
 
+/** Interface language of the page (set on <html lang> by the root layout). */
+function pageLocale(): Locale {
+  const tag = typeof document === "undefined" ? "" : document.documentElement.lang.slice(0, 2);
+  return isLocale(tag) ? tag : "en";
+}
+
 /** Posts JSON to an API route and returns the parsed body or a normalised error. */
 export async function postJson<T = unknown>(url: string, body: unknown, method = "POST"): Promise<{ ok: true; data: T } | { ok: false; code: string; message: string; fields?: Record<string, string>; extra?: Record<string, unknown> }> {
   try {
     const res = await fetch(url, { method, headers: { "content-type": "application/json", ...deviceHeaders() }, body: JSON.stringify(body) });
     const j = await res.json().catch(() => ({}));
     if (res.ok) return { ok: true, data: j as T };
-    return { ok: false, code: j?.error?.code ?? "ERROR", message: j?.error?.message ?? "Request failed.", fields: j?.error?.fields, extra: j?.error };
+    return { ok: false, code: j?.error?.code ?? "ERROR", message: j?.error?.message ?? commonText[pageLocale()].requestFailed, fields: j?.error?.fields, extra: j?.error };
   } catch {
-    return { ok: false, code: "NETWORK", message: "Network error. Check your connection and try again." };
+    return { ok: false, code: "NETWORK", message: commonText[pageLocale()].networkError };
   }
 }

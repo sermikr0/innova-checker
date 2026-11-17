@@ -2,17 +2,19 @@ import Link from "next/link";
 import { Mail, MapPin } from "lucide-react";
 import { InnovaNetworksLogo } from "@/components/brand/logo";
 import { getSiteAccess } from "@/server/settings";
+import { getT } from "@/i18n/server";
+import { marketingNavText } from "@/i18n/messages/marketing-nav";
 
 const COLUMNS = [
-  { title: "Product", links: [{ href: "/#scan", label: "URL Scanner" }, { href: "/features", label: "Features" }, { href: "/how-it-works", label: "How it works" }, { href: "/pricing", label: "Pricing" }] },
-  { title: "Company", links: [{ href: "/about", label: "About" }, { href: "/contact", label: "Contact" }, { href: "/register", label: "Create account" }, { href: "/login", label: "Log in" }] },
-  { title: "Legal", links: [{ href: "/privacy", label: "Privacy policy" }, { href: "/terms", label: "Terms of service" }] },
-];
+  { key: "product", links: [{ href: "/#scan", key: "scanner" }, { href: "/features", key: "features" }, { href: "/how-it-works", key: "howItWorks" }, { href: "/pricing", key: "pricing" }] },
+  { key: "company", links: [{ href: "/about", key: "about" }, { href: "/contact", key: "contact" }, { href: "/register", key: "register" }, { href: "/login", key: "login" }] },
+  { key: "legal", links: [{ href: "/privacy", key: "privacy" }, { href: "/terms", key: "terms" }] },
+] as const;
 
 export async function Footer() {
-  const access = await getSiteAccess();
+  const [access, t] = await Promise.all([getSiteAccess(), getT(marketingNavText)]);
   const hidden = new Set([!access.pricing && "/pricing", !access.register && "/register", !access.login && "/login"].filter(Boolean));
-  const columns = COLUMNS.map((c) => ({ ...c, links: c.links.filter((l) => !hidden.has(l.href)) }));
+  const columns = COLUMNS.map((c) => ({ title: t.footer.columns[c.key], links: c.links.filter((l) => !hidden.has(l.href)).map((l) => ({ href: l.href, label: t.footer.links[l.key] })) }));
   return (
     <footer className="relative mt-24 border-t border-white/[0.06] bg-[#09090b]">
       <div className="hairline absolute inset-x-0 top-0 h-px" />
@@ -20,14 +22,14 @@ export async function Footer() {
         <div className="max-w-sm">
           <InnovaNetworksLogo />
           <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-            Innova Checker is a URL security intelligence service by Innova Networks, built for logistics companies, freight forwarders and the teams who open their links.
+            {t.footer.about}
           </p>
           <div className="mt-6 space-y-2 text-sm text-muted-foreground">
             <a href="mailto:support@innovanetworks.uz" className="flex items-center gap-2 hover:text-white">
               <Mail className="size-4 text-orange" /> support@innovanetworks.uz
             </a>
             <p className="flex items-center gap-2">
-              <MapPin className="size-4 text-orange" /> Tashkent, Uzbekistan
+              <MapPin className="size-4 text-orange" /> {t.footer.location}
             </p>
           </div>
         </div>
@@ -50,8 +52,8 @@ export async function Footer() {
       </div>
       <div className="border-t border-white/[0.05]">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:px-6 lg:px-8">
-          <p>© {new Date().getFullYear()} Innova Networks. All rights reserved.</p>
-          <p>No automated scanner can guarantee a website is 100% safe.</p>
+          <p>© {new Date().getFullYear()} Innova Networks. {t.footer.rights}</p>
+          <p>{t.footer.disclaimer}</p>
         </div>
       </div>
     </footer>

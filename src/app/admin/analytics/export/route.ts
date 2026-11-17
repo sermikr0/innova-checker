@@ -21,10 +21,10 @@ export async function GET(req: Request) {
     where: recentWhere({ range, q: sp.get("q") ?? undefined, verdict: sp.get("verdict") ?? undefined, who: sp.get("who") ?? undefined }),
     orderBy: { createdAt: "desc" },
     take: MAX_ROWS,
-    select: { id: true, createdAt: true, inputUrl: true, normalizedUrl: true, domain: true, status: true, verdict: true, riskScore: true, country: true, user: { select: { email: true, companyName: true } } },
+    select: { id: true, createdAt: true, inputUrl: true, normalizedUrl: true, domain: true, status: true, verdict: true, riskScore: true, country: true, user: { select: { email: true, companyName: true } }, consent: { select: { fullName: true, email: true } } },
   });
-  const head = ["checked_at_utc", "scan_id", "url", "domain", "status", "verdict", "risk_score", "checked_by", "company", "country"];
-  const lines = [head.join(","), ...rows.map((r) => [r.createdAt, r.id, r.normalizedUrl, r.domain, r.status, r.verdict, r.riskScore, r.user ? r.user.email : "visitor", r.user?.companyName, r.country].map(cell).join(","))];
+  const head = ["checked_at_utc", "scan_id", "url", "domain", "status", "verdict", "risk_score", "checked_by", "company", "visitor_name", "visitor_email", "country"];
+  const lines = [head.join(","), ...rows.map((r) => [r.createdAt, r.id, r.normalizedUrl, r.domain, r.status, r.verdict, r.riskScore, r.user ? r.user.email : "visitor", r.user?.companyName, r.consent?.fullName, r.consent?.email, r.country].map(cell).join(","))];
   const name = `innova-link-checks-${range}-${new Date().toISOString().slice(0, 10)}.csv`;
   return new Response(`﻿${lines.join("\r\n")}\r\n`, { headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${name}"`, "cache-control": "no-store" } });
 }

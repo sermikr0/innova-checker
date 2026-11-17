@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { env } from "./env";
+import { getLocale } from "@/i18n/server";
+
+const INTERNAL_ERROR = { en: "Something went wrong. Please try again.", ru: "Что-то пошло не так. Попробуйте ещё раз.", uz: "Nimadir xato ketdi. Qaytadan urinib ko‘ring." };
 
 export class ApiError extends Error {
   constructor(
@@ -74,7 +77,8 @@ export function route<C = unknown>(fn: Handler<C>): Handler<C> {
     } catch (e) {
       if (e instanceof ApiError) return jsonError(e.status, e.code, e.message, e.extra);
       console.error("[api] unhandled error", e);
-      return jsonError(500, "INTERNAL", "Something went wrong. Please try again.");
+      const locale = await getLocale().catch(() => "en" as const);
+      return jsonError(500, "INTERNAL", INTERNAL_ERROR[locale]);
     }
   };
 }

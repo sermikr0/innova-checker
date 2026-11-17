@@ -6,6 +6,8 @@ import { prisma } from "@/server/db";
 import { requireUser } from "@/server/auth/session";
 import { readPreferences } from "@/lib/preferences";
 import { historyWhere } from "@/server/history";
+import { getT } from "@/i18n/server";
+import { dashboardText } from "@/i18n/messages/dashboard";
 
 export default async function HistoryPage({ searchParams }: PageProps<"/dashboard/history">) {
   const s = await requireUser("/dashboard/history");
@@ -22,27 +24,29 @@ export default async function HistoryPage({ searchParams }: PageProps<"/dashboar
     return u.toString();
   };
   const exportQs = qs(1);
+  const t = await getT(dashboardText);
+  const h = t.history;
   return (
     <>
-      <PageHeader eyebrow="Your reports" title="Scan History" description={`${total} scan(s) match your filters.`} actions={<a href={`/api/me/scans/export${exportQs ? `?${exportQs}` : ""}`} className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-medium text-white hover:bg-white/[0.07]"><Download className="size-4" /> Export CSV</a>} />
+      <PageHeader eyebrow={h.eyebrow} title={h.title} description={h.matches(total)} actions={<a href={`/api/me/scans/export${exportQs ? `?${exportQs}` : ""}`} className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-medium text-white hover:bg-white/[0.07]"><Download className="size-4" /> {h.exportCsv}</a>} />
       <form className="surface mb-5 grid gap-3 rounded-2xl p-4 sm:grid-cols-2 lg:grid-cols-[1fr_180px_160px_160px_auto]" method="get">
         <label className="relative">
-          <span className="sr-only">Search domain</span>
+          <span className="sr-only">{h.searchDomain}</span>
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-white/40" />
-          <input name="q" defaultValue={typeof sp.q === "string" ? sp.q : ""} placeholder="Search domain or URL" className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.03] pr-3 pl-9 text-sm text-white outline-none focus:border-orange/60" />
+          <input name="q" defaultValue={typeof sp.q === "string" ? sp.q : ""} placeholder={h.searchPlaceholder} className="h-10 w-full rounded-xl border border-white/10 bg-white/[0.03] pr-3 pl-9 text-sm text-white outline-none focus:border-orange/60" />
         </label>
-        <select name="verdict" defaultValue={typeof sp.verdict === "string" ? sp.verdict : ""} className="h-10 rounded-xl border border-white/10 bg-[#141418] px-3 text-sm text-white" aria-label="Verdict">
-          <option value="">All verdicts</option>
-          <option value="safe">Safe / trusted</option>
-          <option value="suspicious">Suspicious / high risk</option>
-          <option value="malicious">Scam</option>
-          <option value="inconclusive">Inconclusive</option>
+        <select name="verdict" defaultValue={typeof sp.verdict === "string" ? sp.verdict : ""} className="h-10 rounded-xl border border-white/10 bg-[#141418] px-3 text-sm text-white" aria-label={h.verdict}>
+          <option value="">{h.allVerdicts}</option>
+          <option value="safe">{t.groups.safe}</option>
+          <option value="suspicious">{t.groups.suspicious}</option>
+          <option value="malicious">{t.groups.malicious}</option>
+          <option value="inconclusive">{t.groups.inconclusive}</option>
         </select>
-        <input type="date" name="from" defaultValue={typeof sp.from === "string" ? sp.from : ""} aria-label="From date" className="h-10 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white [color-scheme:dark]" />
-        <input type="date" name="to" defaultValue={typeof sp.to === "string" ? sp.to : ""} aria-label="To date" className="h-10 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white [color-scheme:dark]" />
+        <input type="date" name="from" defaultValue={typeof sp.from === "string" ? sp.from : ""} aria-label={h.fromDate} className="h-10 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white [color-scheme:dark]" />
+        <input type="date" name="to" defaultValue={typeof sp.to === "string" ? sp.to : ""} aria-label={h.toDate} className="h-10 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white [color-scheme:dark]" />
         <div className="flex gap-2">
-          <button type="submit" className="btn-orange h-10 rounded-xl px-4 text-sm font-semibold">Filter</button>
-          <Link href="/dashboard/history" className="inline-flex h-10 items-center rounded-xl border border-white/10 px-3 text-sm text-white/80 hover:bg-white/5">Reset</Link>
+          <button type="submit" className="btn-orange h-10 rounded-xl px-4 text-sm font-semibold">{h.filter}</button>
+          <Link href="/dashboard/history" className="inline-flex h-10 items-center rounded-xl border border-white/10 px-3 text-sm text-white/80 hover:bg-white/5">{h.reset}</Link>
         </div>
       </form>
       {scans.length ? (
@@ -51,7 +55,7 @@ export default async function HistoryPage({ searchParams }: PageProps<"/dashboar
           <Pagination page={page} pages={Math.ceil(total / size)} makeHref={(p) => `/dashboard/history?${qs(p)}`} />
         </>
       ) : (
-        <EmptyState icon="History" title="No scans found" text="Try different filters, or scan a new URL." action={<Link href="/dashboard/scanner" className="btn-orange inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Open scanner</Link>} />
+        <EmptyState icon="History" title={h.noResults} text={h.noResultsText} action={<Link href="/dashboard/scanner" className="btn-orange inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">{t.openScanner}</Link>} />
       )}
     </>
   );

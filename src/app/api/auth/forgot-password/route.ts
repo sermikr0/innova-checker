@@ -7,19 +7,23 @@ import { ApiError, assertSameOrigin, clientIp, jsonOk, readJson, route } from "@
 import { hitRateLimit } from "@/server/rate-limit";
 import { sendMail } from "@/server/mailer";
 import { forgotPasswordSchema } from "@/lib/validation";
+import { getT } from "@/i18n/server";
+import { authErrorsText } from "@/i18n/messages/auth-errors";
 
 const TOKEN_TTL_MINUTES = 30;
 
 export const POST = route(async (req) => {
   assertSameOrigin(req);
   const { email } = await readJson(req, forgotPasswordSchema);
+  // getT reads the requester's language (ic_lang cookie, else Accept-Language); the e-mail uses it too.
+  const t = await getT(authErrorsText);
   const ip = clientIp(await headers());
   await assertIpNotBlocked(ip);
   const rlIp = await hitRateLimit(`forgot:ip:${hmac(ip)}`, 10, 3600);
   const rlMail = await hitRateLimit(`forgot:mail:${email}`, 3, 3600);
-  if (!rlIp.ok) throw new ApiError(429, "RATE_LIMITED", "Too many requests. Please try again later.");
+  if (!rlIp.ok) throw new ApiError(429, "RATE_LIMITED", t.forgotRateLimited);
 
-  const generic = { ok: true, message: "If an account exists for this e-mail, a password-reset link has been sent." };
+  const generic = { ok: true, message: t.resetLinkSent };
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user || !user.isActive || !rlMail.ok) return jsonOk(generic);
 
@@ -29,8 +33,8 @@ export const POST = route(async (req) => {
   const link = `${env().APP_URL}/reset-password?token=${encodeURIComponent(token)}`;
   const { delivered } = await sendMail({
     to: user.email,
-    subject: "Reset your Innova Checker password",
-    text: `Hello ${user.fullName},\n\nUse the link below to set a new password. It expires in ${TOKEN_TTL_MINUTES} minutes and can be used once.\n\n${link}\n\nIf you did not request this, ignore this e-mail; your password stays unchanged.\n\nInnova Checker by Innova Networks`,
+    subject: t.resetEmailSubject,
+    text: t.resetEmailBody(user.fullName, TOKEN_TTL_MINUTES, link),
   });
   // Without SMTP in local development the link is returned so the flow can be tested.
   if (!delivered && !isProduction() && process.env.NODE_ENV === "development") return jsonOk({ ...generic, devResetUrl: link });

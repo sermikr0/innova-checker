@@ -1,29 +1,30 @@
 import type { Metadata } from "next";
 import { Ban, Eye, FileLock2, Gauge, Layers, ShieldCheck } from "lucide-react";
 import { FeatureGrid, FinalCta, PageHero, SectionHeading } from "@/components/marketing/sections";
+import { featuresText } from "@/i18n/messages/pages";
+import { getT } from "@/i18n/server";
 
-export const metadata: Metadata = { title: "Features", description: "Eight analysis engines, transparent evidence and a hardened scanning sandbox." };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT(featuresText);
+  return { title: t.metaTitle, description: t.metaDescription };
+}
 
-const PLATFORM = [
-  { icon: Gauge, title: "0–100 risk score", text: "Findings are weighted and combined into a single score and a verdict: Safe, Low Risk, Suspicious, High Risk, Malicious or Inconclusive." },
-  { icon: Eye, title: "Evidence for every check", text: "Each check records its status, result, explanation, raw evidence, data source and timestamp, so analysts can verify every conclusion." },
-  { icon: Ban, title: "SSRF-hardened sandbox", text: "Private, loopback, link-local and cloud-metadata addresses are refused at DNS resolution; redirects are validated hop by hop." },
-  { icon: FileLock2, title: "Downloads never executed", text: "Files are streamed through SHA-256 and signature checks in memory only, never written to disk, opened or run." },
-  { icon: Layers, title: "Modular provider adapters", text: "Threat-intelligence providers plug in through adapters and can be enabled or disabled independently by administrators." },
-  { icon: ShieldCheck, title: "Honest about coverage", text: "Unavailable or unconfigured checks are labelled as such and reduce the coverage figure; they are never reported as clean." },
-];
+/** Icons for t.platform, in the same order. */
+const PLATFORM_ICONS = [Gauge, Eye, Ban, FileLock2, Layers, ShieldCheck];
 
-export default function FeaturesPage() {
+export default async function FeaturesPage() {
+  const t = await getT(featuresText);
+  const platform = t.platform.map((p, i) => ({ ...p, icon: PLATFORM_ICONS[i] }));
   return (
     <>
-      <PageHero eyebrow="Features" title={<>Detection depth of a <span className="text-gradient-orange">security team</span></>} subtitle="Innova Checker runs eight specialised engines on every link and explains exactly what it found." />
+      <PageHero eyebrow={t.heroEyebrow} title={<>{t.heroTitle.before}<span className="text-gradient-orange">{t.heroTitle.highlight}</span>{t.heroTitle.after}</>} subtitle={t.heroSubtitle} />
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <FeatureGrid />
       </section>
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="Platform" title="Built to be trusted by security teams" />
+        <SectionHeading eyebrow={t.platformEyebrow} title={t.platformTitle} />
         <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {PLATFORM.map((p) => (
+          {platform.map((p) => (
             <div key={p.title} className="surface rounded-2xl p-6">
               <p.icon className="size-6 text-orange" />
               <h3 className="mt-4 text-[17px] font-semibold text-white">{p.title}</h3>

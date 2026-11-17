@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { Check, Clock3, MonitorSmartphone, Sparkles, Zap } from "lucide-react";
 import type { DurationUnit } from "@/generated/prisma/enums";
-import { formatUzs } from "@/lib/format";
+import { formatNumber, formatUzs } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import type { Locale } from "@/i18n/config";
+import { getLocale, getT } from "@/i18n/server";
+import { pricingText } from "@/i18n/messages/pricing";
 
 export type PlanCardData = {
   id: string;
@@ -17,16 +20,16 @@ export type PlanCardData = {
   isRecommended: boolean;
 };
 
-export function durationText(value: number, unit: DurationUnit) {
-  const u = unit === "DAY" ? "day" : unit === "MONTH" ? "month" : "year";
-  return `${value} ${u}${value === 1 ? "" : "s"}`;
+export function durationText(value: number, unit: DurationUnit, locale: Locale = "en") {
+  return pricingText[locale].duration(value, unit);
 }
 
 export function approxDays(value: number, unit: DurationUnit) {
   return unit === "DAY" ? value : unit === "MONTH" ? value * 30 : value * 365;
 }
 
-export function PricingCards({ plans, notice, ctaLabel, highlightLabel, compact = false, checkout = false }: { plans: PlanCardData[]; notice: string; ctaLabel: string; highlightLabel: string; compact?: boolean; checkout?: boolean }) {
+export async function PricingCards({ plans, notice, ctaLabel, highlightLabel, compact = false, checkout = false }: { plans: PlanCardData[]; notice: string; ctaLabel: string; highlightLabel: string; compact?: boolean; checkout?: boolean }) {
+  const [{ cards: t }, locale] = await Promise.all([getT(pricingText), getLocale()]);
   return (
     <div className={cn("grid gap-6", plans.length >= 3 ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2")}>
       {plans.map((p) => {
@@ -50,37 +53,37 @@ export function PricingCards({ plans, notice, ctaLabel, highlightLabel, compact 
             <div className="relative">
               <h3 className="text-lg font-semibold text-white">{p.name}</h3>
               <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Clock3 className="size-3.5 text-orange" /> {durationText(p.durationValue, p.durationUnit)} of access
+                <Clock3 className="size-3.5 text-orange" /> {t.access(durationText(p.durationValue, p.durationUnit, locale))}
               </p>
               <p className="mt-6 flex items-baseline gap-2">
-                <span className="text-4xl font-semibold tracking-tight text-white tabular-nums">{new Intl.NumberFormat("en-US").format(p.priceUzs)}</span>
-                <span className="text-base text-white/70">UZS</span>
+                <span className="text-4xl font-semibold tracking-tight text-white tabular-nums">{formatNumber(p.priceUzs, locale)}</span>
+                <span className="text-base text-white/70">{t.currency}</span>
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">≈ {formatUzs(perDay)} per day</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t.perDay(formatUzs(perDay, locale))}</p>
               {!compact && <p className="mt-4 min-h-[44px] text-sm leading-relaxed text-white/70">{p.description}</p>}
 
               <div className="mt-5 flex items-center gap-2 rounded-xl border border-white/[0.08] bg-black/25 px-3.5 py-2.5 text-sm text-white">
                 <MonitorSmartphone className="size-4 text-orange" />
                 <span>
-                  Up to <strong className="font-semibold">{p.deviceLimit}</strong> device{p.deviceLimit === 1 ? "" : "s"}
+                  {t.devicesBefore}<strong className="font-semibold">{p.deviceLimit}</strong>{t.devicesAfter(p.deviceLimit)}
                 </span>
               </div>
 
               {checkout ? (
                 <Link href={`/dashboard/billing?plan=${encodeURIComponent(p.slug)}`} className={cn("mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold", rec ? "btn-orange" : "border border-white/10 bg-white/[0.06] text-white hover:bg-white/[0.1]")}>
-                  <Zap className="size-4" /> Choose plan
+                  <Zap className="size-4" /> {t.choosePlan}
                 </Link>
               ) : (
                 <button type="button" disabled aria-disabled="true" className={cn("mt-5 inline-flex h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl text-sm font-semibold", rec ? "btn-orange opacity-90" : "border border-white/10 bg-white/[0.06] text-white/80")}>
                   <Zap className="size-4" /> {ctaLabel}
                 </button>
               )}
-              <p className="mt-3 text-center text-[11.5px] leading-snug text-muted-foreground">{checkout ? "Pay with Click (UZS) or Visa / Mastercard. Activated instantly on your device." : notice}</p>
+              <p className="mt-3 text-center text-[11.5px] leading-snug text-muted-foreground">{checkout ? t.checkoutNote : notice}</p>
 
               {!compact && (
                 <>
                   <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="h-px flex-1 bg-white/10" /> Included <span className="h-px flex-1 bg-white/10" />
+                    <span className="h-px flex-1 bg-white/10" /> {t.included} <span className="h-px flex-1 bg-white/10" />
                   </div>
                   <ul className="space-y-2.5">
                     {features.map((f) => (
@@ -99,10 +102,11 @@ export function PricingCards({ plans, notice, ctaLabel, highlightLabel, compact 
   );
 }
 
-export function PricingFootnote() {
+export async function PricingFootnote() {
+  const { footnote: t } = await getT(pricingText);
   return (
     <p className="mt-8 text-center text-sm text-muted-foreground">
-      Need access now? <Link href="/contact" className="text-orange hover:underline">Contact Innova Networks</Link> and an administrator can activate a plan for your company.
+      {t.before}<Link href="/contact" className="text-orange hover:underline">{t.link}</Link>{t.after}
     </p>
   );
 }

@@ -7,6 +7,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { AlertCircle, ArrowRight, Crown, Link2, Loader2, LogIn, ScanSearch, ShieldAlert, UserPlus } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { VERDICTS, labelFor, type VerdictKey } from "@/lib/verdict";
+import { useLocale, useT } from "@/i18n/client";
+import { scanBoxText } from "@/i18n/messages/scan-box";
+import { ConsentGate, type ConsentRequest } from "@/components/consent/consent-gate";
 import { VerdictNotice } from "./verdict";
 import { deviceHeaders } from "@/lib/device-fingerprint";
 import { cn } from "@/lib/utils";
@@ -35,6 +38,9 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   const [error, setError] = useState<string | null>(null);
   const [modal, setModal] = useState<Modal>(null);
+  const [consent, setConsent] = useState<ConsentRequest | null>(null);
+  const t = useT(scanBoxText);
+  const locale = useLocale();
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => {
@@ -46,7 +52,7 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
       const tick = async () => {
         try {
           const res = await fetch(`/api/scans/${encodeURIComponent(id)}`, { cache: "no-store" });
-          if (!res.ok) throw new Error("Lost track of the scan. Please try again.");
+          if (!res.ok) throw new Error(t.lostTrack);
           const j = (await res.json()) as { status: string; stages: string[]; verdict: VerdictKey | null; riskScore: number | null; deadLink?: boolean; blacklisted?: boolean; error: string | null };
           if (j.status === "COMPLETED") {
             setPhase({ kind: "done", id, verdict: j.verdict, score: j.riskScore, deadLink: !!j.deadLink, blacklisted: !!j.blacklisted });
@@ -56,7 +62,7 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
           }
           if (j.status === "FAILED") {
             setPhase({ kind: "idle" });
-            setError(j.error ?? "The scan failed. Please try again.");
+            setError(j.error ?? t.failed);
             return;
           }
           setPhase({ kind: "scanning", id, url, stages: j.stages, status: j.status });
@@ -68,14 +74,14 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
       };
       tick();
     },
-    [router, reportBase, autoOpen],
+    [router, reportBase, autoOpen, t],
   );
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
+  async function submit(e?: React.FormEvent) {
+    e?.preventDefault();
     setError(null);
     if (!looksLikeUrl(value)) {
-      setError("Enter a full link, for example https://example.com/track");
+      setError(t.enterFullLink);
       return;
     }
     setPhase({ kind: "submitting" });
@@ -84,9 +90,11 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
       const j = await res.json().catch(() => ({}));
       if (!res.ok) {
         const code = j?.error?.code as string | undefined;
-        const message = (j?.error?.message as string) ?? "The scan could not be started.";
+        const message = (j?.error?.message as string) ?? t.couldNotStart;
         setPhase({ kind: "idle" });
-        if (code === "FREE_SCAN_USED") setModal({ kind: "free-used", message });
+        // First check: accept the Terms of Use and confirm name and e-mail, then the scan is sent again.
+        if (code === "CONSENT_REQUIRED") setConsent({ step: j.error.step ?? "terms", email: j.error.email, signedIn: j.error.signedIn, fullName: j.error.fullName, accountEmail: j.error.accountEmail });
+        else if (code === "FREE_SCAN_USED") setModal({ kind: "free-used", message });
         else if (code === "SUBSCRIPTION_REQUIRED") setModal({ kind: "subscription", message });
         else if (code === "DEVICE_LIMIT_EXCEEDED" || code === "DEVICE_REQUIRED") setModal({ kind: "device", message });
         else setError(message);
@@ -96,7 +104,7 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
       poll(j.id, value.trim());
     } catch {
       setPhase({ kind: "idle" });
-      setError("Network error. Check your connection and try again.");
+      setError(t.network);
     }
   }
 
@@ -107,7 +115,7 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
     <div className="w-full">
       <form onSubmit={submit} className="relative" noValidate>
         <div className={cn("group relative flex flex-col gap-2 rounded-2xl p-2 transition-shadow sm:flex-row sm:items-center", hero ? "surface-raised glow-ring" : "surface-raised", busy && "opacity-90")}>
-          <label htmlFor={`scan-url-${variant}`} className="sr-only">URL to analyze</label>
+          <label htmlFor={`scan-url-${variant}`} className="sr-only">{t.inputLabel}</label>
           <div className="flex min-w-0 flex-1 items-center gap-3 px-3">
             <Link2 className="size-5 shrink-0 text-orange" aria-hidden />
             <input
@@ -116,7 +124,7 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
               inputMode="url"
               autoComplete="off"
               spellCheck={false}
-              placeholder="Paste a suspicious URL here..."
+              placeholder={t.placeholder}
               value={value}
               disabled={busy}
               onChange={(e) => setValue(e.target.value)}
@@ -127,7 +135,7 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
           </div>
           <button type="submit" disabled={busy} className={cn("btn-orange inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-6 font-semibold transition disabled:cursor-not-allowed disabled:opacity-70", hero ? "h-12 text-[15px] sm:h-14" : "h-11 text-sm")}>
             {phase.kind === "submitting" ? <Loader2 className="size-4 animate-spin" /> : <ScanSearch className="size-4" />}
-            Analyze URL
+            {t.analyze}
           </button>
         </div>
         <AnimatePresence>
@@ -141,7 +149,7 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
 
       {hero && phase.kind === "idle" && !error && (
         <p className="mt-4 text-center text-xs text-muted-foreground sm:text-sm">
-          {signedIn ? "Scans are included in your subscription." : `${access.note} · No account needed · Results in seconds`}
+          {signedIn ? t.subscriberNote : t.visitorNote(access.note)}
         </p>
       )}
 
@@ -156,16 +164,16 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
             <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className={cn("rounded-full px-3 py-1 text-sm font-semibold ring-1", phase.verdict ? `${VERDICTS[phase.verdict].text} ${VERDICTS[phase.verdict].bg} ${VERDICTS[phase.verdict].ring}` : "text-white")}>
-                {phase.verdict ? labelFor(phase.verdict, phase.blacklisted) : "Done"}
+                {phase.verdict ? labelFor(phase.verdict, phase.blacklisted, locale) : t.done}
               </span>
-              <span className="text-sm text-white/80">Analysis complete{phase.score !== null ? ` · risk score ${phase.score}/100` : ""}</span>
+              <span className="text-sm text-white/80">{t.complete}{phase.score !== null ? t.riskScore(phase.score) : ""}</span>
             </div>
             {autoOpen ? (
-              <span className="inline-flex items-center gap-1.5 text-sm text-orange">Opening report <Loader2 className="size-4 animate-spin" /></span>
+              <span className="inline-flex items-center gap-1.5 text-sm text-orange">{t.opening} <Loader2 className="size-4 animate-spin" /></span>
             ) : (
               <span className="flex items-center gap-2">
-                <Link href={`${reportBase}/${phase.id}`} className="btn-orange inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold">View report <ArrowRight className="size-4" /></Link>
-                <button type="button" onClick={() => { setPhase({ kind: "idle" }); setValue(""); }} className="h-9 rounded-lg border border-white/10 px-3 text-sm text-white hover:bg-white/5">New scan</button>
+                <Link href={`${reportBase}/${phase.id}`} className="btn-orange inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold">{t.viewReport} <ArrowRight className="size-4" /></Link>
+                <button type="button" onClick={() => { setPhase({ kind: "idle" }); setValue(""); }} className="h-9 rounded-lg border border-white/10 px-3 text-sm text-white hover:bg-white/5">{t.newScan}</button>
               </span>
             )}
             </div>
@@ -173,6 +181,8 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConsentGate request={consent} onClose={() => setConsent(null)} onDone={() => { setConsent(null); void submit(); }} />
 
       <Dialog open={!!modal} onOpenChange={(o) => !o && setModal(null)}>
         <DialogContent className="border-white/10 bg-[#121216] sm:max-w-md">
@@ -182,7 +192,7 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
               {modal?.kind === "free-used" ? <Crown className="size-6 text-orange" /> : <ShieldAlert className="size-6 text-orange" />}
             </div>
             <DialogTitle className="text-xl text-white">
-              {modal?.kind === "free-used" ? "Your free checks have been used" : modal?.kind === "device" ? "Device limit reached" : "Active subscription required"}
+              {modal?.kind === "free-used" ? t.freeUsedTitle : modal?.kind === "device" ? t.deviceTitle : t.subscriptionTitle}
             </DialogTitle>
             <DialogDescription className="text-[15px] leading-relaxed text-muted-foreground">
               {modal?.message}
@@ -193,27 +203,27 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
               <>
                 {access.register && (
                   <Link href="/register" className="btn-orange inline-flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold">
-                    <UserPlus className="size-4" /> Create Free Account
+                    <UserPlus className="size-4" /> {t.createAccount}
                   </Link>
                 )}
                 <div className="grid grid-cols-2 gap-2">
-                  {access.pricing && <Link href="/pricing" className="inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">View Pricing</Link>}
+                  {access.pricing && <Link href="/pricing" className="inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">{t.viewPricing}</Link>}
                   {access.login && (
                     <Link href="/login" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">
-                      <LogIn className="size-4" /> Log In
+                      <LogIn className="size-4" /> {t.logIn}
                     </Link>
                   )}
-                  {!access.pricing && !access.login && <Link href="/contact" className="col-span-2 inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">Contact us</Link>}
+                  {!access.pricing && !access.login && <Link href="/contact" className="col-span-2 inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">{t.contactUs}</Link>}
                 </div>
               </>
             ) : modal?.kind === "device" ? (
               <Link href="/dashboard/devices" className="btn-orange inline-flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold">
-                Manage devices <ArrowRight className="size-4" />
+                {t.manageDevices} <ArrowRight className="size-4" />
               </Link>
             ) : (
               <div className="grid grid-cols-2 gap-2">
-                <Link href={access.pricing ? "/pricing" : "/contact"} className="btn-orange inline-flex h-11 items-center justify-center rounded-xl text-sm font-semibold">{access.pricing ? "View Pricing" : "Contact us"}</Link>
-                <Link href="/dashboard/subscription" className="inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">My subscription</Link>
+                <Link href={access.pricing ? "/pricing" : "/contact"} className="btn-orange inline-flex h-11 items-center justify-center rounded-xl text-sm font-semibold">{access.pricing ? t.viewPricing : t.contactUs}</Link>
+                <Link href="/dashboard/subscription" className="inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">{t.mySubscription}</Link>
               </div>
             )}
           </DialogFooter>

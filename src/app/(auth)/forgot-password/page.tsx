@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
 import { ForgotPasswordForm } from "@/components/auth/auth-forms";
+import { getT } from "@/i18n/server";
+import { authText } from "@/i18n/messages/auth";
 
-export const metadata: Metadata = { title: "Forgot password" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = (await getT(authText)).forgot;
+  return { title: t.metaTitle };
+}
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage() {
+  const t = (await getT(authText)).forgot;
   return (
     <>
-      <h1 className="text-3xl font-semibold tracking-tight text-white">Reset your password</h1>
-      <p className="mt-2 mb-8 text-sm text-muted-foreground">Enter your work e-mail and we will send you a one-time reset link valid for 30 minutes.</p>
+      <h1 className="text-3xl font-semibold tracking-tight text-white">{t.title}</h1>
+      <p className="mt-2 mb-8 text-sm text-muted-foreground">{t.subtitle}</p>
       <ForgotPasswordForm />
     </>
   );

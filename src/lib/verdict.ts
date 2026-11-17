@@ -1,4 +1,7 @@
-// Display metadata shared by server and client components.
+// Display metadata shared by server and client components. Labels here are
+// English; the *For / *Label helpers return them in the interface language.
+import type { Locale } from "@/i18n/config";
+import { verdictText } from "@/i18n/messages/verdict";
 
 export type VerdictKey = "TRUSTED" | "SAFE" | "LOW_RISK" | "SUSPICIOUS" | "HIGH_RISK" | "MALICIOUS" | "INCONCLUSIVE";
 
@@ -87,14 +90,33 @@ export const BLACKLIST_LABEL = "100% Scam";
 export const BLACKLIST_TAGLINE = "On the Innova scam blacklist";
 export const BLACKLIST_NOTICE = "100% SCAM: this address is on the Innova blacklist of confirmed phishing and scam sites. Do not open it, do not enter any information and do not download anything from it.";
 
-export function noticeFor(verdict: VerdictKey, deadLink: boolean, blacklisted = false): string {
-  return blacklisted ? BLACKLIST_NOTICE : deadLink ? DEAD_LINK_NOTICE : VERDICT_NOTICE[verdict];
+export function noticeFor(verdict: VerdictKey, deadLink: boolean, blacklisted = false, locale: Locale = "en"): string {
+  const t = verdictText[locale];
+  return blacklisted ? t.blacklistNotice : deadLink ? t.deadLinkNotice : t.notice[verdict];
 }
 
-export function taglineFor(verdict: VerdictKey, deadLink: boolean, blacklisted = false): string {
-  return blacklisted ? BLACKLIST_TAGLINE : deadLink ? DEAD_LINK_TAGLINE : VERDICTS[verdict].tagline;
+export function taglineFor(verdict: VerdictKey, deadLink: boolean, blacklisted = false, locale: Locale = "en"): string {
+  const t = verdictText[locale];
+  return blacklisted ? t.blacklistTagline : deadLink ? t.deadLinkTagline : t.tagline[verdict];
 }
 
-export function labelFor(verdict: VerdictKey, blacklisted = false): string {
-  return blacklisted ? BLACKLIST_LABEL : VERDICTS[verdict].label;
+export function labelFor(verdict: VerdictKey, blacklisted = false, locale: Locale = "en"): string {
+  const t = verdictText[locale];
+  return blacklisted ? t.blacklistLabel : t.label[verdict];
+}
+
+export function checkStatusLabel(status: string, locale: Locale = "en"): string {
+  return verdictText[locale].checkStatus[status as CheckStatusKey] ?? CHECK_STATUS[status as CheckStatusKey]?.label ?? status;
+}
+
+export function severityLabel(severity: string, locale: Locale = "en"): string {
+  return verdictText[locale].severity[severity as SeverityKey] ?? SEVERITY[severity as SeverityKey]?.label ?? severity;
+}
+
+export function intelStatusLabel(status: string, locale: Locale = "en"): string {
+  return (verdictText[locale].intelStatus as Record<string, string>)[status] ?? INTEL_STATUS[status]?.label ?? status;
+}
+
+export function stageLabel(key: string, locale: Locale = "en"): string {
+  return (verdictText[locale].stages as Record<string, string>)[key] ?? SCAN_STAGES.find((s) => s.key === key)?.label ?? key;
 }

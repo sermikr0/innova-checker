@@ -7,16 +7,20 @@ import { ApiError, assertSameOrigin, clientIp, jsonOk, readJson, route, userAgen
 import { getSystemSettings } from "@/server/settings";
 import { hashPassword } from "@/server/auth/password";
 import { resetPasswordSchema } from "@/lib/validation";
+import { getT } from "@/i18n/server";
+import { authErrorsText } from "@/i18n/messages/auth-errors";
+import { validationText } from "@/i18n/messages/validation";
 
 export const POST = route(async (req) => {
   assertSameOrigin(req);
   await assertIpNotBlocked(clientIp(await headers()));
   const body = await readJson(req, resetPasswordSchema);
   const settings = await getSystemSettings();
-  if (body.password.length < settings.passwordMinLength) throw new ApiError(400, "VALIDATION", `Use at least ${settings.passwordMinLength} characters.`, { fields: { password: `Use at least ${settings.passwordMinLength} characters.` } });
+  const [msg, tv] = await Promise.all([getT(authErrorsText), getT(validationText)]);
+  if (body.password.length < settings.passwordMinLength) throw new ApiError(400, "VALIDATION", tv.passwordMin(settings.passwordMinLength), { fields: { password: tv.passwordMin(settings.passwordMinLength) } });
 
   const t = await prisma.passwordResetToken.findUnique({ where: { tokenHash: sha256(body.token) }, include: { user: true } });
-  if (!t || t.usedAt || t.expiresAt < new Date() || !t.user.isActive) throw new ApiError(400, "INVALID_TOKEN", "This reset link is invalid or has expired. Request a new one.");
+  if (!t || t.usedAt || t.expiresAt < new Date() || !t.user.isActive) throw new ApiError(400, "INVALID_TOKEN", msg.invalidToken);
 
   const now = new Date();
   await prisma.$transaction([

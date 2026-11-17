@@ -1,8 +1,12 @@
 import Link from "next/link";
 import { BadgeCheck, Lock, ScanSearch } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
+import { LanguageSwitcher } from "@/components/common/language-switcher";
+import { getT } from "@/i18n/server";
+import { authText } from "@/i18n/messages/auth";
 
-export default function AuthLayout({ children }: LayoutProps<"/">) {
+export default async function AuthLayout({ children }: LayoutProps<"/">) {
+  const t = (await getT(authText)).layout;
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
       <aside className="relative hidden overflow-hidden border-r border-white/[0.06] lg:flex lg:flex-col lg:justify-between lg:p-12">
@@ -14,13 +18,13 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         </div>
         <div className="relative max-w-md">
           <h2 className="text-4xl leading-tight font-semibold tracking-tight">
-            <span className="text-gradient-silver">Know before</span> <span className="text-gradient-orange">you click.</span>
+            <span className="text-gradient-silver">{t.headingSilver}</span> <span className="text-gradient-orange">{t.headingOrange}</span>
           </h2>
-          <p className="mt-4 text-white/65">One account for your scanner, scan history and reports, protected by device-bound sessions.</p>
+          <p className="mt-4 text-white/65">{t.intro}</p>
           <ul className="mt-8 space-y-4 text-sm text-white/80">
-            <li className="flex items-center gap-3"><ScanSearch className="size-5 text-orange" /> Eight analysis engines on every link</li>
-            <li className="flex items-center gap-3"><BadgeCheck className="size-5 text-orange" /> Verified logistics domain database</li>
-            <li className="flex items-center gap-3"><Lock className="size-5 text-orange" /> Argon2id passwords · device-limited licences</li>
+            <li className="flex items-center gap-3"><ScanSearch className="size-5 text-orange" /> {t.featureEngines}</li>
+            <li className="flex items-center gap-3"><BadgeCheck className="size-5 text-orange" /> {t.featureDomains}</li>
+            <li className="flex items-center gap-3"><Lock className="size-5 text-orange" /> {t.featureSecurity}</li>
           </ul>
         </div>
         <p className="relative text-xs text-muted-foreground">© {new Date().getFullYear()} Innova Networks</p>
@@ -28,12 +32,13 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
       <main className="relative flex items-center justify-center px-4 py-12 sm:px-8">
         <div className="pointer-events-none absolute top-0 left-1/2 h-64 w-[500px] -translate-x-1/2 rounded-[100%] bg-orange/[0.08] blur-[90px] lg:hidden" />
         <div className="relative w-full max-w-md">
-          <div className="mb-8 lg:hidden">
-            <Logo />
+          <div className="mb-8 flex items-center justify-between gap-4">
+            <span className="lg:invisible"><Logo /></span>
+            <LanguageSwitcher />
           </div>
           {children}
           <p className="mt-8 text-center text-xs text-muted-foreground">
-            <Link href="/" className="hover:text-white">← Back to Innova Checker</Link>
+            <Link href="/" className="hover:text-white">{t.backHome}</Link>
           </p>
         </div>
       </main>

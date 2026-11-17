@@ -138,6 +138,22 @@ export function openApiSpec(serverUrl: string) {
       "/api/auth/reset-password": {
         post: { tags: ["Auth"], summary: "Set a new password with a reset token", requestBody: { required: true, content: json({ type: "object", required: ["token", "password", "confirmPassword"], properties: { token: { type: "string" }, password: { type: "string" }, confirmPassword: { type: "string" } } }) }, responses: { 200: { description: "Password changed; all sessions revoked", content: json(ref("Redirect")) }, 400: err("Invalid or expired token"), 429: err("IP blocked") } },
       },
+      "/api/consent/start": {
+        post: {
+          tags: ["Terms of Use"], summary: "Accept the Terms of Use with first and last name and e-mail",
+          description: "Required once before the first check when Admin → Site controls asks for it (the scan API answers 428 `CONSENT_REQUIRED`). Records the acceptance (time, Terms version, language, IP, country, browser, device) and sets the `ic_consent` cookie. When e-mail confirmation is on and SMTP is configured, sends a 6-digit code valid for 10 minutes. Signed-in users always confirm their account e-mail.",
+          parameters: [DEVICE],
+          security: [{}, { session: [] }],
+          requestBody: { required: true, content: json({ type: "object", required: ["fullName", "email", "accept", "termsVersion"], properties: { fullName: { type: "string", description: "First and last name (at least two words)" }, email: { type: "string", format: "email" }, accept: { type: "boolean", enum: [true] }, termsVersion: { type: "string", example: "2026-11-17" } } }) },
+          responses: { 200: { description: "Next step", content: json({ type: "object", properties: { step: { type: "string", enum: ["verify", "done"] }, email: { type: "string", description: "Masked address the code was sent to" }, resendIn: { type: "integer" } } }) }, 400: err("Terms not accepted, invalid name or e-mail"), 409: err("TERMS_UPDATED: reload and accept the current version"), 429: err("Too many attempts"), 502: err("EMAIL_SEND_FAILED") },
+        },
+      },
+      "/api/consent/verify": {
+        post: { tags: ["Terms of Use"], summary: "Confirm the e-mail with the 6-digit code", requestBody: { required: true, content: json({ type: "object", required: ["code"], properties: { code: { type: "string", pattern: "^[0-9]{6}$" } } }) }, responses: { 200: { description: "Confirmed", content: json({ type: "object", properties: { step: { type: "string", enum: ["done"] } } }) }, 400: err("CODE_INVALID, CODE_EXPIRED or CONSENT_NOT_STARTED"), 429: err("CODE_LOCKED after 5 wrong codes, or rate limited") } },
+      },
+      "/api/consent/resend": {
+        post: { tags: ["Terms of Use"], summary: "Send a new code (at most once a minute)", responses: { 200: { description: "Next step", content: json({ type: "object", properties: { step: { type: "string" }, email: { type: "string" }, resendIn: { type: "integer" } } }) }, 400: err("CONSENT_NOT_STARTED"), 429: err("Rate limited") } },
+      },
       "/api/scans": {
         post: {
           tags: ["Scans"], summary: "Start a URL scan",
@@ -145,7 +161,7 @@ export function openApiSpec(serverUrl: string) {
           parameters: [{ ...DEVICE, required: false, description: "Required for anonymous scans." }],
           security: [{}, { session: [] }],
           requestBody: { required: true, content: json({ type: "object", required: ["url"], properties: { url: { type: "string", maxLength: 2048 } } }) },
-          responses: { 202: { description: "Scan queued", content: json({ type: "object", properties: { id: { type: "string" } } }) }, 400: err("Invalid URL or device check failed"), 402: err("Subscription required"), 403: err("FREE_SCAN_USED, DEVICE_LIMIT_EXCEEDED"), 429: err("Rate limited or IP blocked"), 503: err("Maintenance") },
+          responses: { 202: { description: "Scan queued", content: json({ type: "object", properties: { id: { type: "string" } } }) }, 400: err("Invalid URL or device check failed"), 402: err("Subscription required"), 428: err("CONSENT_REQUIRED: accept the Terms of Use (POST /api/consent/start) first; `step` is terms or verify"), 403: err("FREE_SCAN_USED, DEVICE_LIMIT_EXCEEDED"), 429: err("Rate limited or IP blocked"), 503: err("Maintenance") },
         },
       },
       "/api/scans/{id}": {
