@@ -1,5 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "./db";
+import { siteAccessFrom, type SiteAccess } from "@/lib/site-access";
 import { DEFAULT_SCANNER_SETTINGS } from "./scanner/data/defaults";
 import type { BrandProfile, LookupCache, ModuleKey, ProviderId, ScannerSettings } from "./scanner/types";
 
@@ -25,6 +26,11 @@ export function invalidateSettingsCache() {
 
 export async function getSystemSettings() {
   return cached("system", async () => (await prisma.systemSetting.findUnique({ where: { id: "default" } })) ?? prisma.systemSetting.create({ data: { id: "default" } }));
+}
+
+/** Website switches (client sign-in, registration, pricing) and the free-scan policy. */
+export async function getSiteAccess(): Promise<SiteAccess> {
+  return siteAccessFrom(await getSystemSettings());
 }
 
 export async function getPricingConfig() {

@@ -6,17 +6,18 @@ import { FaqSection, FeatureGrid, FinalCta, HowItWorks, SectionHeading, StatsSec
 import { PricingCards } from "@/components/marketing/pricing-cards";
 import { getSession } from "@/server/auth/session";
 import { getPublicPlans, platformStats } from "@/server/plans";
-import { getPricingConfig } from "@/server/settings";
+import { getPricingConfig, getSiteAccess } from "@/server/settings";
+import { freePolicyLong, freePolicyShort } from "@/lib/site-access";
 import { paymentsAvailable } from "@/server/payments/config";
 
 export default async function HomePage() {
-  const [session, stats, plans, pricing] = await Promise.all([getSession(), platformStats(), getPublicPlans(), getPricingConfig()]);
+  const [session, stats, plans, pricing, access] = await Promise.all([getSession(), platformStats(), getPublicPlans(), getPricingConfig(), getSiteAccess()]);
   const preview = ["monthly", "annual", "quarterly"].map((s) => plans.find((p) => p.slug === s)).filter((p) => !!p);
   const previewPlans = preview.length === 3 ? preview : plans.slice(0, 3);
 
   return (
     <>
-      <Hero signedIn={!!session} />
+      <Hero signedIn={!!session} access={{ login: access.login, register: access.register, pricing: access.pricing, note: freePolicyShort(access) }} />
 
       <section className="relative mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8" aria-label="Example report">
         <ReportPreview />
@@ -50,6 +51,7 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {access.pricing && (
       <section className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="pointer-events-none absolute top-24 right-0 h-[420px] w-[420px] rounded-full bg-orange/[0.12] blur-[120px]" />
         <SectionHeading eyebrow="Pricing" title="Simple plans in Uzbekistani so'm" subtitle="Every plan includes the full analysis engine. Plans differ only in duration and the number of devices." />
@@ -62,11 +64,12 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
+      )}
 
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
         <SectionHeading eyebrow="FAQ" title="Questions, answered" />
         <div className="mt-12">
-          <FaqSection />
+          <FaqSection freeAnswer={freePolicyLong(access)} />
         </div>
       </section>
 

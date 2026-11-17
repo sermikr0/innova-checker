@@ -98,9 +98,6 @@ export function ScannerConfigForm({ initial, providers }: { initial: ScannerForm
 export type SystemForm = {
   siteName: string;
   supportEmail: string;
-  freeScanLimit: number;
-  anonymousIpDailyLimit: number;
-  registrationEnabled: boolean;
   sessionTtlHours: number;
   loginMaxAttempts: number;
   loginLockoutMinutes: number;
@@ -126,14 +123,6 @@ export function SystemSettingsForm({ initial }: { initial: SystemForm }) {
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Site name" value={f.siteName} onChange={(e) => setF({ ...f, siteName: e.target.value })} />
           <Field label="Support e-mail (shown publicly)" type="email" value={f.supportEmail} onChange={(e) => setF({ ...f, supportEmail: e.target.value })} />
-        </div>
-      </section>
-      <section className={section}>
-        <h2 className="mb-4 text-[15px] font-semibold text-white">Free scans & registration</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Free scans per visitor session" type="number" value={f.freeScanLimit} onChange={num("freeScanLimit")} />
-          <Field label="Anonymous scans per IP per day" type="number" value={f.anonymousIpDailyLimit} onChange={num("anonymousIpDailyLimit")} hint="Offices behind one NAT share this limit." />
-          <Toggle label="Allow self-registration" checked={f.registrationEnabled} onChange={(v) => setF({ ...f, registrationEnabled: v })} />
         </div>
       </section>
       <section className={section}>

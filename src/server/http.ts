@@ -79,6 +79,16 @@ export function route<C = unknown>(fn: Handler<C>): Handler<C> {
   };
 }
 
+/**
+ * Visitor country (ISO 3166 alpha-2) from Cloudflare's CF-IPCountry, which
+ * server.mjs passes on only for trusted Cloudflare Tunnel connections.
+ */
+export function clientCountry(headers: Headers): string | null {
+  if (!process.env.INNOVA_CLIENT_IP_HEADER) return null;
+  const v = (headers.get("x-innova-client-country") ?? "").toUpperCase();
+  return /^[A-Z]{2}$/.test(v) && v !== "XX" ? v : null;
+}
+
 /** Client IP honouring TRUSTED_PROXY_COUNT (see README: anonymous limits). */
 export function clientIp(headers: Headers): string {
   // server.mjs overwrites this header with the socket address (or the address

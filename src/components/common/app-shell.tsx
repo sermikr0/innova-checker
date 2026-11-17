@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Activity, BarChart3, CreditCard, Database, FileClock, History, LayoutDashboard, LogOut, Menu, MonitorSmartphone, ScanSearch, Settings, ShieldBan, ShieldCheck, Sliders, Tags, User, Users, Wallet } from "lucide-react";
+import { Activity, BarChart3, CreditCard, Database, FileClock, History, LayoutDashboard, LogOut, Menu, MonitorSmartphone, ScanSearch, Settings, ShieldBan, ShieldCheck, Sliders, Tags, ToggleRight, User, Users, Wallet } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 
-const ICONS = { Activity, BarChart3, CreditCard, Database, FileClock, History, LayoutDashboard, MonitorSmartphone, ScanSearch, Settings, ShieldBan, ShieldCheck, Sliders, Tags, User, Users, Wallet } as const;
+const ICONS = { Activity, BarChart3, CreditCard, Database, FileClock, History, LayoutDashboard, MonitorSmartphone, ScanSearch, Settings, ShieldBan, ShieldCheck, Sliders, Tags, ToggleRight, User, Users, Wallet } as const;
 export type IconName = keyof typeof ICONS;
 export type NavItem = { href: string; label: string; icon: IconName; exact?: boolean; badge?: number };
 

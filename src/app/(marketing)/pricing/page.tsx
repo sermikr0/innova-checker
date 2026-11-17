@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { EyeOff } from "lucide-react";
+import { getSession } from "@/server/auth/session";
 import { Check, Info, Minus } from "lucide-react";
 import { PricingCards, PricingFootnote, approxDays, durationText } from "@/components/marketing/pricing-cards";
 import { FinalCta, PageHero } from "@/components/marketing/sections";
 import { getPublicPlans } from "@/server/plans";
-import { getPricingConfig } from "@/server/settings";
+import { getPricingConfig, getSiteAccess } from "@/server/settings";
 import { formatUzs } from "@/lib/format";
 import { paymentsAvailable } from "@/server/payments/config";
 
@@ -23,9 +26,17 @@ const FEATURE_ROWS = [
 ];
 
 export default async function PricingPage() {
-  const [plans, pricing] = await Promise.all([getPublicPlans(), getPricingConfig()]);
+  const [plans, pricing, access, session] = await Promise.all([getPublicPlans(), getPricingConfig(), getSiteAccess(), getSession()]);
+  // Hidden in Admin → Site controls: visitors get a 404, administrators a preview.
+  if (!access.pricing && session?.user.role !== "SUPER_ADMIN") notFound();
   return (
     <>
+      {!access.pricing && (
+        <div className="border-b border-v-suspicious/30 bg-v-suspicious/10 px-4 py-2.5 text-center text-sm text-v-suspicious" role="status">
+          <EyeOff className="mr-2 inline size-4 align-[-3px]" />
+          Pricing is hidden from visitors. Only administrators see this preview; turn it on in Admin → Site controls.
+        </div>
+      )}
       <PageHero eyebrow="Pricing" title={<>Full protection, <span className="text-gradient-orange">every plan</span></>} subtitle="All plans include the complete Innova Checker analysis engine. Choose the duration and number of devices that fit your team." />
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

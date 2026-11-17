@@ -17,7 +17,7 @@ import { registerSchema } from "@/lib/validation";
 export const POST = route(async (req) => {
   assertSameOrigin(req);
   const settings = await getSystemSettings();
-  if (!settings.registrationEnabled) throw new ApiError(403, "REGISTRATION_DISABLED", "Self-registration is currently disabled. Contact Innova Networks for an account.");
+  if (!settings.registrationEnabled || !settings.loginEnabled) throw new ApiError(403, "REGISTRATION_DISABLED", "Self-registration is currently disabled. Contact Innova Networks for an account.");
   const body = await readJson(req, registerSchema);
   if (body.password.length < settings.passwordMinLength) {
     throw new ApiError(400, "VALIDATION", `Use at least ${settings.passwordMinLength} characters.`, { fields: { password: `Use at least ${settings.passwordMinLength} characters.` } });

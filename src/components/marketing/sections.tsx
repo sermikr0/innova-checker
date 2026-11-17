@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
+import { getSiteAccess } from "@/server/settings";
 
 export function SectionHeading({ eyebrow, title, subtitle, align = "center" }: { eyebrow: string; title: React.ReactNode; subtitle?: string; align?: "center" | "left" }) {
   return (
@@ -184,15 +185,17 @@ export const FAQ = [
   { q: "What exactly does a scan check?", a: "Eight modules run on every scan: URL structure, domain registration and reputation, DNS records, SSL/TLS certificate, redirect chain, page content, file downloads and threat intelligence. The report lists every check with its result, evidence and source." },
   { q: "Can a “Safe” verdict be wrong?", a: "Yes. No automated scanner can guarantee that a website is 100% safe. Attackers serve different content to different visitors and use brand-new infrastructure. Treat the verdict as strong evidence, not a guarantee, and follow your company's security policy." },
   { q: "Which threat-intelligence sources are used?", a: "Innova Checker integrates Google Safe Browsing, VirusTotal, URLhaus, PhishTank and AbuseIPDB. Each provider is used only when its API key is configured by the operator. Reports clearly mark providers that were not consulted." },
-  { q: "Why is there only one free scan?", a: "The free scan lets you try the full analysis. Continuous use requires a subscription so we can keep the scanning infrastructure and intelligence feeds running. Free-scan limits are enforced on the server, not just in your browser." },
+  { q: "How many free checks do I get?", a: "The free allowance lets you try the full analysis. Continuous use requires a subscription so we can keep the scanning infrastructure and intelligence feeds running. Free-scan limits are enforced on the server, not just in your browser." },
   { q: "How do device limits work?", a: "Each plan allows a set number of devices (1 to 50). A device is registered when you sign in on a new browser. When the limit is reached, remove an old device from your dashboard or ask your administrator." },
   { q: "How can I buy a subscription?", a: "Online payments are not available yet; purchases will be enabled soon. Until then, contact Innova Networks and an administrator can activate a plan for your account." },
 ];
 
-export function FaqSection() {
+/** `freeAnswer` replaces the free-allowance answer with the policy currently configured. */
+export function FaqSection({ freeAnswer }: { freeAnswer?: string }) {
+  const items = FAQ.map((f) => (freeAnswer && f.q === "How many free checks do I get?" ? { ...f, a: `${freeAnswer} Free-scan limits are enforced on the server, not just in your browser.` } : f));
   return (
     <Accordion type="single" collapsible className="mx-auto max-w-3xl space-y-3">
-      {FAQ.map((f, i) => (
+      {items.map((f, i) => (
         <AccordionItem key={f.q} value={`q${i}`} className="surface rounded-2xl border-b-0 px-5">
           <AccordionTrigger className="py-5 text-left text-[15px] font-medium text-white hover:no-underline">{f.q}</AccordionTrigger>
           <AccordionContent className="pb-5 text-sm leading-relaxed text-muted-foreground">{f.a}</AccordionContent>
@@ -202,7 +205,8 @@ export function FaqSection() {
   );
 }
 
-export function FinalCta() {
+export async function FinalCta() {
+  const access = await getSiteAccess();
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="relative overflow-hidden rounded-[32px] border border-orange/30 bg-[radial-gradient(120%_120%_at_100%_0%,rgba(255,107,0,0.35)_0%,rgba(255,107,0,0.08)_35%,#0e0e11_70%)] px-6 py-14 text-center sm:px-12 sm:py-20">
@@ -213,11 +217,13 @@ export function FinalCta() {
           <p className="mt-4 text-base text-white/70 sm:text-lg">Give every dispatcher, broker and accountant a fast, trustworthy way to check a link before they click it.</p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/#scan" className="btn-orange inline-flex h-12 items-center justify-center gap-2 rounded-xl px-6 text-[15px] font-semibold">
-              <ScanSearch className="size-4" /> Run a free scan
+              <ScanSearch className="size-4" /> {access.freeMode === "UNLIMITED" || access.freeLimit > 0 ? "Run a free scan" : "Check a link"}
             </Link>
-            <Link href="/register" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-[15px] font-medium text-white hover:bg-white/[0.08]">
-              Create an account <ArrowRight className="size-4" />
-            </Link>
+            {access.register && (
+              <Link href="/register" className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-6 text-[15px] font-medium text-white hover:bg-white/[0.08]">
+                Create an account <ArrowRight className="size-4" />
+              </Link>
+            )}
           </div>
         </div>
       </div>

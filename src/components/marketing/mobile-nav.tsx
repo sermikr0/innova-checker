@@ -6,7 +6,7 @@ import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Logo } from "@/components/brand/logo";
 
-export function MobileNav({ links, signedIn, home }: { links: { href: string; label: string }[]; signedIn: boolean; home: string }) {
+export function MobileNav({ links, signedIn, home, showLogin, showRegister }: { links: { href: string; label: string }[]; signedIn: boolean; home: string; showLogin: boolean; showRegister: boolean }) {
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -34,11 +34,13 @@ export function MobileNav({ links, signedIn, home }: { links: { href: string; la
             </Link>
           ) : (
             <>
-              <Link href="/login" onClick={() => setOpen(false)} className="inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium">
-                Log in
-              </Link>
-              <Link href="/register" onClick={() => setOpen(false)} className="btn-orange inline-flex h-11 items-center justify-center rounded-xl text-sm font-semibold">
-                Create free account
+              {showLogin && (
+                <Link href="/login" onClick={() => setOpen(false)} className="inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium">
+                  Log in
+                </Link>
+              )}
+              <Link href={showRegister ? "/register" : "/#scan"} onClick={() => setOpen(false)} className="btn-orange inline-flex h-11 items-center justify-center rounded-xl text-sm font-semibold">
+                {showRegister ? "Create free account" : "Check a link"}
               </Link>
             </>
           )}

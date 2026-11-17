@@ -432,9 +432,6 @@ export async function resetScannerDefaultsAction(): Promise<ActionResult> {
 const System = z.object({
   siteName: z.string().trim().min(2).max(80),
   supportEmail: emailSchema,
-  freeScanLimit: z.coerce.number().int().min(0).max(100),
-  anonymousIpDailyLimit: z.coerce.number().int().min(0).max(10000),
-  registrationEnabled: z.boolean(),
   sessionTtlHours: z.coerce.number().int().min(1).max(24 * 90),
   loginMaxAttempts: z.coerce.number().int().min(3).max(50),
   loginLockoutMinutes: z.coerce.number().int().min(1).max(1440),
@@ -458,6 +455,49 @@ export async function updateSystemSettingsAction(input: unknown): Promise<Action
     invalidateSettingsCache();
     await log(actor, "SYSTEM_SETTINGS_UPDATED", { type: "SystemSetting", id: "default" }, { changed });
     return { ok: true, message: "Settings saved" };
+  });
+}
+
+// ─── Site controls (client sign-in, registration, pricing, free checks) ───────
+
+const SiteControls = z
+  .object({
+    loginEnabled: z.boolean(),
+    registrationEnabled: z.boolean(),
+    pricingVisible: z.boolean(),
+    freeScanMode: z.enum(["UNLIMITED", "DAILY", "TOTAL"]),
+    freeScanLimit: z.coerce.number().int().min(0).max(100),
+    anonymousIpDailyLimit: z.coerce.number().int().min(1).max(100_000),
+  })
+  .partial()
+  .strict();
+
+const SITE_CONTROL_LABELS: Record<string, string> = { loginEnabled: "Client sign-in", registrationEnabled: "Registration", pricingVisible: "Pricing section" };
+
+/** Saves one or more site switches; each toggle on the page saves on its own. */
+export async function updateSiteControlsAction(input: unknown): Promise<ActionResult> {
+  return guard(async () => {
+    const actor = await admin();
+    const d = SiteControls.parse(input);
+    if (!Object.keys(d).length) return { ok: true, message: "Nothing to save" };
+    const before = await prisma.systemSetting.findUnique({ where: { id: "default" } });
+    await prisma.systemSetting.upsert({ where: { id: "default" }, update: { ...d, updatedById: actor.id }, create: { id: "default", ...d, updatedById: actor.id } });
+    invalidateSettingsCache();
+    const changed = Object.fromEntries(Object.entries(d).filter(([k, v]) => (before as Record<string, unknown> | null)?.[k] !== v).map(([k, v]) => [k, { from: (before as Record<string, unknown> | null)?.[k] ?? null, to: v }]));
+    await log(actor, "SITE_CONTROLS_UPDATED", { type: "SystemSetting", id: "default" }, { changed });
+    const keys = Object.keys(d);
+    if (keys.length === 1 && keys[0] in SITE_CONTROL_LABELS) return { ok: true, message: `${SITE_CONTROL_LABELS[keys[0]]} ${(d as Record<string, boolean>)[keys[0]] ? "turned on" : "turned off"}` };
+    return { ok: true, message: "Free-check policy saved" };
+  });
+}
+
+/** Ends every active session of non-admin accounts (used together with switching client sign-in off). */
+export async function signOutAllClientsAction(): Promise<ActionResult> {
+  return guard(async () => {
+    const actor = await admin();
+    const r = await prisma.session.updateMany({ where: { revokedAt: null, user: { role: { not: "SUPER_ADMIN" } } }, data: { revokedAt: new Date() } });
+    await log(actor, "CLIENT_SESSIONS_REVOKED", { type: "Session" }, { count: r.count });
+    return { ok: true, message: r.count ? `${r.count} client session${r.count === 1 ? "" : "s"} signed out` : "No client was signed in" };
   });
 }
 

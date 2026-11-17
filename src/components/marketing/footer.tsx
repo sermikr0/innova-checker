@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Mail, MapPin } from "lucide-react";
 import { InnovaNetworksLogo } from "@/components/brand/logo";
+import { getSiteAccess } from "@/server/settings";
 
 const COLUMNS = [
   { title: "Product", links: [{ href: "/#scan", label: "URL Scanner" }, { href: "/features", label: "Features" }, { href: "/how-it-works", label: "How it works" }, { href: "/pricing", label: "Pricing" }] },
@@ -8,7 +9,10 @@ const COLUMNS = [
   { title: "Legal", links: [{ href: "/privacy", label: "Privacy policy" }, { href: "/terms", label: "Terms of service" }] },
 ];
 
-export function Footer() {
+export async function Footer() {
+  const access = await getSiteAccess();
+  const hidden = new Set([!access.pricing && "/pricing", !access.register && "/register", !access.login && "/login"].filter(Boolean));
+  const columns = COLUMNS.map((c) => ({ ...c, links: c.links.filter((l) => !hidden.has(l.href)) }));
   return (
     <footer className="relative mt-24 border-t border-white/[0.06] bg-[#09090b]">
       <div className="hairline absolute inset-x-0 top-0 h-px" />
@@ -28,7 +32,7 @@ export function Footer() {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
-          {COLUMNS.map((c) => (
+          {columns.map((c) => (
             <div key={c.title}>
               <h3 className="text-xs font-semibold tracking-[0.16em] text-white/50 uppercase">{c.title}</h3>
               <ul className="mt-4 space-y-3">

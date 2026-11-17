@@ -141,7 +141,7 @@ export function openApiSpec(serverUrl: string) {
       "/api/scans": {
         post: {
           tags: ["Scans"], summary: "Start a URL scan",
-          description: "Signed-in users need an active subscription on a registered device (Super Admin and Unlimited roles excepted). Anonymous visitors get the configured number of free scans per device fingerprint and per IP.",
+          description: "Signed-in users need an active subscription on a registered device (Super Admin and Unlimited roles excepted). Without a subscription, visitors and signed-in users get the free allowance set in Admin → Site controls (unlimited, N per day or N in total), counted per device fingerprint, plus a per-IP daily ceiling for visitors. When the allowance is used up the API returns 403 FREE_SCAN_USED (visitors) or 402 SUBSCRIPTION_REQUIRED (signed-in users).",
           parameters: [{ ...DEVICE, required: false, description: "Required for anonymous scans." }],
           security: [{}, { session: [] }],
           requestBody: { required: true, content: json({ type: "object", required: ["url"], properties: { url: { type: "string", maxLength: 2048 } } }) },

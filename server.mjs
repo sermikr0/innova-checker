@@ -32,6 +32,7 @@ const appUrl = (() => {
   }
 })();
 const CLIENT_IP_HEADER = "x-innova-client-ip";
+const CLIENT_COUNTRY_HEADER = "x-innova-client-country";
 
 process.env.INNOVA_CLIENT_IP_HEADER = CLIENT_IP_HEADER;
 const app = next({ dev: false, hostname, port });
@@ -68,6 +69,13 @@ const httpServer = createServer((req, res) => {
     return;
   }
   req.headers[CLIENT_IP_HEADER] = clientAddress(req);
+  // Country for scan statistics: Cloudflare's CF-IPCountry, trusted only on the
+  // loopback connection from cloudflared; a visitor-supplied value is dropped.
+  delete req.headers[CLIENT_COUNTRY_HEADER];
+  if (trustCloudflare && isLoopback((req.socket.remoteAddress ?? "").replace(/^::ffff:/, ""))) {
+    const country = String(req.headers["cf-ipcountry"] ?? "").trim().toUpperCase();
+    if (/^[A-Z]{2}$/.test(country)) req.headers[CLIENT_COUNTRY_HEADER] = country;
+  }
   handle(req, res);
 });
 

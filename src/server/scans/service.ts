@@ -3,7 +3,7 @@ import { cookies, headers } from "next/headers";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "../db";
 import { hmac, newScanId, randomToken, sha256 } from "../crypto";
-import { ApiError, clientIp, userAgent } from "../http";
+import { ApiError, clientCountry, clientIp, userAgent } from "../http";
 import { hitRateLimit } from "../rate-limit";
 import { dbLookupCache, getScannerSettings, getSystemSettings } from "../settings";
 import { env } from "../env";
@@ -13,6 +13,7 @@ import { getSession, type CurrentSession } from "../auth/session";
 import { activeDeviceCount } from "../auth/devices";
 import { requireFingerprint } from "../auth/fingerprint";
 import { assertIpNotBlocked } from "../auth/ip-block";
+import { claimFreeScan } from "./free-quota";
 import { getActiveSubscription } from "../subscriptions/service";
 import { analyze } from "../scanner/engine";
 import { dbDomainLookup, getWhitelistBrands, mergeBrands } from "../domain-intel/service";
@@ -75,17 +76,32 @@ export async function claimAnonymousScans(userId: string): Promise<void> {
 }
 
 // ─── Authorisation to scan ────────────────────────────────────────────────────
-export async function assertCanScan(session: CurrentSession): Promise<void> {
-  if (hasUnlimitedAccess(session.user.role)) return;
+type SystemSettings = Awaited<ReturnType<typeof getSystemSettings>>;
+
+/** Checks a subscriber's device limit. Returns false when the user has no subscription. */
+async function assertSubscriptionDevice(session: CurrentSession): Promise<boolean> {
   const sub = await getActiveSubscription(session.user.id);
-  if (!sub) {
-    throw new ApiError(402, "SUBSCRIPTION_REQUIRED", "An active subscription is required to scan URLs. Choose a plan or contact your administrator.");
-  }
+  if (!sub) return false;
   if (!session.deviceId) throw new ApiError(403, "DEVICE_REQUIRED", "This session is not bound to a registered device. Please sign in again.");
   const active = await activeDeviceCount(session.user.id);
   if (active > sub.deviceLimit) {
     throw new ApiError(403, "DEVICE_LIMIT_EXCEEDED", `Your ${sub.plan.name} plan allows ${sub.deviceLimit} device${sub.deviceLimit === 1 ? "" : "s"}, but ${active} are registered. Remove devices in Dashboard → Devices to continue scanning.`, { limit: sub.deviceLimit, active });
   }
+  return true;
+}
+
+/** Fingerprint key the free allowance of a signed-in user is counted on. */
+async function deviceQuotaKey(session: CurrentSession, h: Headers): Promise<string> {
+  if (!session.deviceId) throw new ApiError(403, "DEVICE_REQUIRED", "This session is not bound to a registered device. Please sign in again.");
+  const device = await prisma.device.findUnique({ where: { id: session.deviceId }, select: { fingerprintHash: true } });
+  return device?.fingerprintHash ?? requireFingerprint(h).hash;
+}
+
+function freeExhaustedMessage(system: SystemSettings, signedIn: boolean): string {
+  const next = signedIn ? "Choose a subscription plan or contact your administrator to continue." : system.loginEnabled && system.registrationEnabled ? "Create an account and choose a subscription plan to continue analyzing suspicious URLs." : "Contact Innova Networks to get a subscription.";
+  if (system.freeScanLimit <= 0) return `An active subscription is required to scan URLs. ${next}`;
+  if (system.freeScanMode === "DAILY") return `You have used today's ${system.freeScanLimit} free check${system.freeScanLimit === 1 ? "" : "s"}. They renew at 00:00 Tashkent time. ${next}`;
+  return `Your free security scan${system.freeScanLimit === 1 ? " has" : "s have"} been used. ${next}`;
 }
 
 // ─── Start ────────────────────────────────────────────────────────────────────
@@ -115,16 +131,21 @@ export async function startScan(rawUrl: string): Promise<{ id: string }> {
     normalizedUrl: normalized.normalized,
     domain: normalized.url.hostname.replace(/^\[|\]$/g, "").toLowerCase(),
     ipHash,
+    country: clientCountry(h),
   };
 
   if (session) {
-    await assertCanScan(session);
     // Unlimited roles have no quota; only a high ceiling against runaway scripts remains.
     const unlimited = hasUnlimitedAccess(session.user.role);
     const perMin = await hitRateLimit(`scan:user:${session.user.id}:m`, unlimited ? 120 : 20, 60);
     if (!perMin.ok) throw new ApiError(429, "RATE_LIMITED", "Too many scans. Please wait a minute.", { retryAfter: perMin.retryAfterSec });
     const perDay = await hitRateLimit(`scan:user:${session.user.id}:d`, unlimited ? 50_000 : 1000, 86400);
     if (!perDay.ok) throw new ApiError(429, "RATE_LIMITED", "Daily scan limit reached.", { retryAfter: perDay.retryAfterSec });
+    if (!unlimited && !(await assertSubscriptionDevice(session))) {
+      // No subscription: the configured free allowance applies, shared with this device's visitor scans.
+      const release = await claimFreeScan(system, await deviceQuotaKey(session, h));
+      if (!release) throw new ApiError(402, "SUBSCRIPTION_REQUIRED", freeExhaustedMessage(system, true), { freeMode: system.freeScanMode, freeLimit: system.freeScanLimit });
+    }
     await prisma.scan.create({ data: { ...base, userId: session.user.id, deviceId: session.deviceId } });
     return { id: base.id };
   }
@@ -134,19 +155,23 @@ export async function startScan(rawUrl: string): Promise<{ id: string }> {
 
   const fp = requireFingerprint(h);
   const anon = await getOrCreateAnonymousSession(ipHash, ua, fp.hash);
-  const claimed = await prisma.anonymousSession.updateMany({ where: { id: anon.id, scansUsed: { lt: system.freeScanLimit } }, data: { scansUsed: { increment: 1 } } });
-  if (claimed.count === 0) throw freeScanUsed();
-  const daily = await hitRateLimit(`scan:anon-ip:${ipHash}:d`, system.anonymousIpDailyLimit, 86400);
+  const release = await claimFreeScan(system, anon.fingerprintHash ?? fp.hash);
+  if (!release) throw freeScanUsed(system);
+  // Offices behind one NAT share this ceiling; in unlimited mode it only stops scripts.
+  const unlimitedFree = system.freeScanMode === "UNLIMITED";
+  const daily = await hitRateLimit(`scan:anon-ip:${ipHash}:d`, unlimitedFree ? Math.max(system.anonymousIpDailyLimit, 1000) : system.anonymousIpDailyLimit, 86400);
   if (!daily.ok) {
-    await prisma.anonymousSession.update({ where: { id: anon.id }, data: { scansUsed: { decrement: 1 } } });
-    throw freeScanUsed();
+    await release();
+    if (unlimitedFree) throw new ApiError(429, "RATE_LIMITED", "Daily scan limit for this network reached. Please try again tomorrow.", { retryAfter: daily.retryAfterSec });
+    throw freeScanUsed(system);
   }
+  await prisma.anonymousSession.update({ where: { id: anon.id }, data: { scansUsed: { increment: 1 } } });
   await prisma.scan.create({ data: { ...base, anonymousSessionId: anon.id } });
   return { id: base.id };
 }
 
-function freeScanUsed() {
-  return new ApiError(403, "FREE_SCAN_USED", "Your free security scan has been used. Create an account and choose a subscription plan to continue analyzing suspicious URLs.");
+function freeScanUsed(system: SystemSettings) {
+  return new ApiError(403, "FREE_SCAN_USED", freeExhaustedMessage(system, false), { freeMode: system.freeScanMode, freeLimit: system.freeScanLimit });
 }
 
 // ─── Execute ──────────────────────────────────────────────────────────────────

@@ -305,6 +305,8 @@ model Scan {
   /// Share of analysis modules that produced a result (0-100).
   confidence         Int?
   ipHash             String?
+  /// Two-letter country of the visitor (Cloudflare CF-IPCountry), when known.
+  country            String?           @db.VarChar(2)
   startedAt          DateTime?
   completedAt        DateTime?
   durationMs         Int?
@@ -321,6 +323,7 @@ model Scan {
   @@index([verdict])
   @@index([domain])
   @@index([status, createdAt])
+  @@index([createdAt])
 }
 
 model ScanResult {
@@ -436,9 +439,15 @@ model SystemSetting {
   siteName                  String   @default("Innova Checker")
   supportEmail              String   @default("support@innovanetworks.uz")
   logoUrl                   String   @default("/brand/innova-logo-white.png")
+  /// UNLIMITED: free for everyone; DAILY: freeScanLimit per device per day; TOTAL: freeScanLimit per device, then paid.
+  freeScanMode              FreeScanMode @default(TOTAL)
   freeScanLimit             Int      @default(1)
   anonymousIpDailyLimit     Int      @default(5)
   registrationEnabled       Boolean  @default(true)
+  /// Off: only Super Admins can sign in; Log in / Register links are hidden from the website.
+  loginEnabled              Boolean  @default(true)
+  /// Off: plans and prices are hidden from the website and checkout is closed.
+  pricingVisible            Boolean  @default(true)
   sessionTtlHours           Int      @default(168)
   loginMaxAttempts          Int      @default(5)
   deviceRemovalsPer30Days   Int      @default(3)
@@ -692,4 +701,23 @@ model PaymentEvent {
 
   @@index([intentId])
   @@index([createdAt])
+}
+
+/// How visitors and users without a subscription may scan for free.
+enum FreeScanMode {
+  UNLIMITED
+  DAILY
+  TOTAL
+}
+
+/// Free scans used per device (HMAC of the device fingerprint) and period:
+/// "YYYY-MM-DD" (Tashkent day) for the daily mode, "total" for the one-time mode.
+model FreeScanUsage {
+  key       String
+  period    String
+  used      Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@id([key, period])
+  @@index([updatedAt])
 }

@@ -17,6 +17,7 @@ export async function register() {
     try {
       if (await due("threat-feed-sync", FEEDS_EVERY_MS)) await runJob("threat-feed-sync", "scheduler", async () => syncThreatFeeds({ urlhaus: (await (await import("./server/integrations")).resolveProviderKeys()).urlhaus }));
       if (await due("domain-revalidation", REVALIDATE_EVERY_MS)) await runJob("domain-revalidation", "scheduler", () => revalidateDomains());
+      if (await due("free-quota-prune", REVALIDATE_EVERY_MS)) await runJob("free-quota-prune", "scheduler", async () => ({ removed: await (await import("./server/scans/free-quota")).pruneFreeScanUsage() }));
     } catch (e) {
       console.error("[scheduler] job failed", e);
     }

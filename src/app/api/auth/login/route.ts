@@ -52,6 +52,11 @@ export const POST = route(async (req) => {
     throw await fail();
   }
   if (!user.isActive) throw new ApiError(403, "ACCOUNT_DISABLED", "This account has been deactivated. Contact your administrator.");
+  // Client sign-in can be switched off in Admin → Site controls; administrators always get in.
+  if (!settings.loginEnabled && user.role !== "SUPER_ADMIN") {
+    await audit({ action: "USER_LOGIN_FAILED", targetType: "User", targetId: user.id, targetLabel: user.email, metadata: { reason: "login_disabled" }, ip, userAgent: ua });
+    throw new ApiError(403, "LOGIN_DISABLED", "Sign-in is temporarily unavailable. Please try again later or contact Innova Networks.");
+  }
 
   const jar = await cookies();
   const { device, browserToken } = await resolveDeviceForLogin({ user, browserToken: jar.get(DEVICE_COOKIE)?.value ?? null, fingerprintHash: fp.hash, ip, userAgent: ua });

@@ -18,6 +18,10 @@ type Phase =
   | { kind: "scanning"; id: string; url: string; stages: string[]; status: string }
   | { kind: "done"; id: string; verdict: VerdictKey | null; score: number | null; deadLink: boolean; blacklisted: boolean };
 
+/** Which website areas are open (Admin → Site controls) and the free-allowance line. */
+export type ScanAccess = { login: boolean; register: boolean; pricing: boolean; note: string };
+const OPEN: ScanAccess = { login: true, register: true, pricing: true, note: "1 free scan" };
+
 type Modal = null | { kind: "free-used"; message: string } | { kind: "subscription"; message: string } | { kind: "device"; message: string };
 
 function looksLikeUrl(v: string) {
@@ -25,7 +29,7 @@ function looksLikeUrl(v: string) {
   return s.length > 3 && /[.:]/.test(s) && !/\s/.test(s);
 }
 
-export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/scan", autoOpen = true }: { variant?: "hero" | "dashboard"; signedIn?: boolean; reportBase?: string; autoOpen?: boolean }) {
+export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/scan", autoOpen = true, access = OPEN }: { variant?: "hero" | "dashboard"; signedIn?: boolean; reportBase?: string; autoOpen?: boolean; access?: ScanAccess }) {
   const router = useRouter();
   const [value, setValue] = useState("");
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
@@ -137,7 +141,7 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
 
       {hero && phase.kind === "idle" && !error && (
         <p className="mt-4 text-center text-xs text-muted-foreground sm:text-sm">
-          {signedIn ? "Scans are included in your subscription." : "1 free scan · No account needed · Results in seconds"}
+          {signedIn ? "Scans are included in your subscription." : `${access.note} · No account needed · Results in seconds`}
         </p>
       )}
 
@@ -178,23 +182,28 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
               {modal?.kind === "free-used" ? <Crown className="size-6 text-orange" /> : <ShieldAlert className="size-6 text-orange" />}
             </div>
             <DialogTitle className="text-xl text-white">
-              {modal?.kind === "free-used" ? "Your free security scan has been used." : modal?.kind === "device" ? "Device limit reached" : "Active subscription required"}
+              {modal?.kind === "free-used" ? "Your free checks have been used" : modal?.kind === "device" ? "Device limit reached" : "Active subscription required"}
             </DialogTitle>
             <DialogDescription className="text-[15px] leading-relaxed text-muted-foreground">
-              {modal?.kind === "free-used" ? "Create an account and choose a subscription plan to continue analyzing suspicious URLs." : modal?.message}
+              {modal?.message}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-2 flex-col gap-2 sm:flex-col">
             {modal?.kind === "free-used" ? (
               <>
-                <Link href="/register" className="btn-orange inline-flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold">
-                  <UserPlus className="size-4" /> Create Free Account
-                </Link>
-                <div className="grid grid-cols-2 gap-2">
-                  <Link href="/pricing" className="inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">View Pricing</Link>
-                  <Link href="/login" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">
-                    <LogIn className="size-4" /> Log In
+                {access.register && (
+                  <Link href="/register" className="btn-orange inline-flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-semibold">
+                    <UserPlus className="size-4" /> Create Free Account
                   </Link>
+                )}
+                <div className="grid grid-cols-2 gap-2">
+                  {access.pricing && <Link href="/pricing" className="inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">View Pricing</Link>}
+                  {access.login && (
+                    <Link href="/login" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">
+                      <LogIn className="size-4" /> Log In
+                    </Link>
+                  )}
+                  {!access.pricing && !access.login && <Link href="/contact" className="col-span-2 inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">Contact us</Link>}
                 </div>
               </>
             ) : modal?.kind === "device" ? (
@@ -203,7 +212,7 @@ export function ScanBox({ variant = "hero", signedIn = false, reportBase = "/sca
               </Link>
             ) : (
               <div className="grid grid-cols-2 gap-2">
-                <Link href="/pricing" className="btn-orange inline-flex h-11 items-center justify-center rounded-xl text-sm font-semibold">View Pricing</Link>
+                <Link href={access.pricing ? "/pricing" : "/contact"} className="btn-orange inline-flex h-11 items-center justify-center rounded-xl text-sm font-semibold">{access.pricing ? "View Pricing" : "Contact us"}</Link>
                 <Link href="/dashboard/subscription" className="inline-flex h-11 items-center justify-center rounded-xl border border-white/10 text-sm font-medium text-white hover:bg-white/5">My subscription</Link>
               </div>
             )}

@@ -5,6 +5,7 @@ import { getSession } from "@/server/auth/session";
 import { requireFingerprint } from "@/server/auth/fingerprint";
 import { assertIpNotBlocked } from "@/server/auth/ip-block";
 import { hitRateLimit } from "@/server/rate-limit";
+import { getSystemSettings } from "@/server/settings";
 import { prisma } from "@/server/db";
 import { createPaymentIntent } from "@/server/payments/service";
 
@@ -17,6 +18,7 @@ export const POST = route(async (req) => {
   await assertIpNotBlocked(ip);
   const session = await getSession();
   if (!session) throw new ApiError(401, "UNAUTHENTICATED", "Sign in to buy a subscription.");
+  if (!(await getSystemSettings()).pricingVisible) throw new ApiError(403, "PLANS_UNAVAILABLE", "Plans are not available for purchase right now. Contact Innova Networks.");
   if (!session.deviceId) throw new ApiError(403, "DEVICE_REQUIRED", "This session is not bound to a registered device. Please sign in again.");
   const fp = requireFingerprint(h);
   // The QR code is bound to the device that asked for it.

@@ -11,6 +11,8 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const [pending, messages] = await Promise.all([prisma.domainRecord.count({ where: { status: "PENDING" } }), prisma.contactMessage.count({ where: { handledAt: null } })]);
   const items: NavItem[] = [
     { href: "/admin", label: "Overview", icon: "LayoutDashboard", exact: true },
+    { href: "/admin/analytics", label: "Link analytics", icon: "BarChart3" },
+    { href: "/admin/site-controls", label: "Site controls", icon: "ToggleRight" },
     { href: "/admin/users", label: "Users", icon: "Users" },
     { href: "/admin/subscriptions", label: "Subscriptions", icon: "CreditCard" },
     { href: "/admin/plans", label: "Plans & pricing", icon: "Tags" },

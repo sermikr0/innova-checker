@@ -7,19 +7,21 @@ import { activeDeviceCount } from "@/server/auth/devices";
 import { getLatestSubscription, remainingDays } from "@/server/subscriptions/service";
 import { formatDate, formatDateTime, formatUzs } from "@/lib/format";
 import { hasUnlimitedAccess } from "@/lib/roles";
+import { getSiteAccess } from "@/server/settings";
 
 const STATUS_CLS: Record<string, string> = { ACTIVE: "text-v-safe bg-v-safe/10 ring-v-safe/25", EXPIRED: "text-v-malicious bg-v-malicious/10 ring-v-malicious/25", SUSPENDED: "text-v-suspicious bg-v-suspicious/10 ring-v-suspicious/25", CANCELLED: "text-muted-foreground bg-white/5 ring-white/10", PENDING: "text-sev-info bg-sev-info/10 ring-sev-info/25" };
 
 export default async function SubscriptionPage() {
   const s = await requireUser("/dashboard/subscription");
-  const [sub, used, history] = await Promise.all([
+  const [sub, used, history, access] = await Promise.all([
     getLatestSubscription(s.user.id),
     activeDeviceCount(s.user.id),
     prisma.subscriptionHistory.findMany({ where: { userId: s.user.id }, orderBy: { createdAt: "desc" }, take: 20 }),
+    getSiteAccess(),
   ]);
   return (
     <>
-      <PageHeader eyebrow="Your plan" title="Subscription" actions={<Link href="/pricing" className="inline-flex h-10 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-medium text-white hover:bg-white/[0.07]">View all plans</Link>} />
+      <PageHeader eyebrow="Your plan" title="Subscription" actions={access.pricing ? <Link href="/pricing" className="inline-flex h-10 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm font-medium text-white hover:bg-white/[0.07]">View all plans</Link> : undefined} />
       {hasUnlimitedAccess(s.user.role) && (
         <div className="mb-6 rounded-2xl border border-v-trusted/30 bg-v-trusted/[0.06] p-6">
           <p className="text-lg font-semibold text-v-trusted">Unlimited access</p>
@@ -27,7 +29,7 @@ export default async function SubscriptionPage() {
         </div>
       )}
       {!sub ? (
-        hasUnlimitedAccess(s.user.role) ? null : <EmptyState icon="CreditCard" title="No subscription yet" text="Buy a plan with Click or Visa / Mastercard. It is activated on this device as soon as the payment is confirmed." action={<Link href="/dashboard/billing" className="btn-orange inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Buy a subscription</Link>} />
+        hasUnlimitedAccess(s.user.role) ? null : access.pricing ? <EmptyState icon="CreditCard" title="No subscription yet" text="Buy a plan with Click or Visa / Mastercard. It is activated on this device as soon as the payment is confirmed." action={<Link href="/dashboard/billing" className="btn-orange inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Buy a subscription</Link>} /> : <EmptyState icon="CreditCard" title="No subscription yet" text="Plans are not on sale online right now. Contact Innova Networks and an administrator can activate a plan for your account." action={<Link href="/contact" className="btn-orange inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">Contact us</Link>} />
       ) : (
         <>
           <div className="surface relative overflow-hidden rounded-3xl p-6 sm:p-8">

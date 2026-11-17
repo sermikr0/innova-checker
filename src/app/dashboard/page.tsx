@@ -10,17 +10,20 @@ import { activeDeviceCount } from "@/server/auth/devices";
 import { getCurrentSubscription, remainingDays } from "@/server/subscriptions/service";
 import { formatDate } from "@/lib/format";
 import { hasUnlimitedAccess } from "@/lib/roles";
+import { getSiteAccess } from "@/server/settings";
+import { freePolicyShort } from "@/lib/site-access";
 
 export default async function DashboardOverview() {
   const s = await requireUser("/dashboard");
   const where = { userId: s.user.id };
-  const [stats, perDay, recent, sub, devices, registered] = await Promise.all([
+  const [stats, perDay, recent, sub, devices, registered, access] = await Promise.all([
     scanStats(where),
     scansPerDay(where, 14),
     prisma.scan.findMany({ where, orderBy: { createdAt: "desc" }, take: 6 }),
     getCurrentSubscription(s.user.id),
     activeDeviceCount(s.user.id),
     prisma.device.count({ where: { userId: s.user.id, revokedAt: null } }),
+    getSiteAccess(),
   ]);
   const days = remainingDays(sub);
   const totalDays = sub ? Math.max(1, Math.ceil((sub.expiresAt.getTime() - sub.startsAt.getTime()) / 86_400_000)) : 1;
@@ -62,7 +65,8 @@ export default async function DashboardOverview() {
               </>
             ) : (
               <div className="mt-3 text-sm text-white/75">
-                No active subscription. <Link href="/pricing" className="text-orange hover:underline">View plans</Link>
+                No active subscription. Free plan: {freePolicyShort(access).toLowerCase()}.{" "}
+                {access.pricing ? <Link href="/pricing" className="text-orange hover:underline">View plans</Link> : <Link href="/contact" className="text-orange hover:underline">Contact us</Link>}
               </div>
             )}
           </div>

@@ -1,5 +1,5 @@
 import { Lock, Radar, ScrollText, ShieldCheck } from "lucide-react";
-import { ScanBox } from "@/components/scan/scan-box";
+import { ScanBox, type ScanAccess } from "@/components/scan/scan-box";
 
 function HeroBackdrop() {
   return (
@@ -16,7 +16,7 @@ function HeroBackdrop() {
   );
 }
 
-export function Hero({ signedIn }: { signedIn: boolean }) {
+export function Hero({ signedIn, access }: { signedIn: boolean; access: ScanAccess }) {
   return (
     <section id="scan" className="relative scroll-mt-20">
       <HeroBackdrop />
@@ -37,7 +37,7 @@ export function Hero({ signedIn }: { signedIn: boolean }) {
         </div>
 
         <div className="mx-auto mt-10 max-w-3xl">
-          <ScanBox variant="hero" signedIn={signedIn} />
+          <ScanBox variant="hero" signedIn={signedIn} access={access} />
         </div>
 
         <div className="mx-auto mt-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-3 text-[13px] text-white/60">
