@@ -1,0 +1,2499 @@
+[
+  {
+    "domain": "highway.com",
+    "platformName": "Highway",
+    "companyName": "Highway App, Inc.",
+    "category": "Carrier onboarding & identity",
+    "officialUrl": "https://highway.com/",
+    "brandKeywords": [
+      "highway"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "FreightWaves (trade press), 2025-08-20, \"Highway secures investment for carrier fraud platform\" links Highway to https://highway.com/ \u2014 https://www.freightwaves.com/news/carrier-identity-platform",
+    "verifiedAt": "2026-11-11T22:28:25.426Z",
+    "notes": "Live title: \"Highway - It all starts with Carrier Identity | Home\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://highway.com/",
+        "title": "Highway - It all starts with Carrier Identity | Home"
+      },
+      "nameservers": [
+        "ns-1010.awsdns-62.net",
+        "ns-1360.awsdns-42.org",
+        "ns-1752.awsdns-27.co.uk",
+        "ns-445.awsdns-55.com"
+      ],
+      "manual": "FreightWaves (trade press), 2025-08-20, \"Highway secures investment for carrier fraud platform\" links Highway to https://highway.com/ \u2014 https://www.freightwaves.com/news/carrier-identity-platform"
+    }
+  },
+  {
+    "domain": "gohighway.com",
+    "platformName": "Highway",
+    "companyName": "Highway App, Inc.",
+    "category": "Carrier onboarding & identity",
+    "officialUrl": "https://highway.com/",
+    "brandKeywords": [
+      "gohighway"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Referenced by the verified official site https://highway.com/ as its Pardot tracking host (piHostname = 'www2.gohighway.com'), which requires DNS control of gohighway.com; https://gohighway.com/ redirects to https://highway.com/; both domains use Amazon Registrar, Route 53 DNS and Google Workspace mail. Parent evidence: FreightWaves 2025-08-20 (https://www.freightwaves.com/news/carrier-identity-platform)",
+    "verifiedAt": "2026-11-11T22:29:12.707109Z",
+    "notes": "Live title: \"Highway - It all starts with Carrier Identity | Home\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://highway.com/",
+        "title": "Highway - It all starts with Carrier Identity | Home"
+      },
+      "nameservers": [
+        "ns-1530.awsdns-63.org",
+        "ns-1785.awsdns-31.co.uk",
+        "ns-394.awsdns-49.com",
+        "ns-924.awsdns-51.net"
+      ],
+      "parentCheck": {
+        "parent": "highway.com",
+        "redirect": true,
+        "sharedNs": false,
+        "childNs": [
+          "ns-1530.awsdns-63.org",
+          "ns-1785.awsdns-31.co.uk",
+          "ns-394.awsdns-49.com",
+          "ns-924.awsdns-51.net"
+        ],
+        "parentNs": [
+          "ns-1010.awsdns-62.net",
+          "ns-1360.awsdns-42.org",
+          "ns-1752.awsdns-27.co.uk",
+          "ns-445.awsdns-55.com"
+        ],
+        "linkedFrom": null
+      },
+      "manual": "Referenced by the verified official site https://highway.com/ as its Pardot tracking host (piHostname = 'www2.gohighway.com'), which requires DNS control of gohighway.com; https://gohighway.com/ redirects to https://highway.com/; both domains use Amazon Registrar, Route 53 DNS and Google Workspace mail. Parent evidence: FreightWaves 2025-08-20 (https://www.freightwaves.com/news/carrier-identity-platform)"
+    }
+  },
+  {
+    "domain": "dat.com",
+    "platformName": "DAT",
+    "companyName": "DAT Freight & Analytics",
+    "category": "Load board",
+    "officialUrl": "https://www.dat.com/",
+    "brandKeywords": [
+      "dat",
+      "datone",
+      "datloadboard"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "English Wikipedia article \"DAT Solutions\" infobox website = dat.com \u2014 https://en.wikipedia.org/wiki/DAT_Solutions",
+    "verifiedAt": "2026-11-11T22:23:58.790Z",
+    "notes": "Live title: \"DAT Freight &amp; Analytics - DAT\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.dat.com/",
+        "title": "DAT Freight &amp; Analytics - DAT"
+      },
+      "nameservers": [
+        "ns-1291.awsdns-33.org",
+        "ns-1556.awsdns-02.co.uk",
+        "ns-59.awsdns-07.com",
+        "ns-761.awsdns-31.net"
+      ],
+      "wikipedia": {
+        "title": "DAT Solutions",
+        "website": "dat.com",
+        "url": "https://en.wikipedia.org/wiki/DAT_Solutions"
+      }
+    }
+  },
+  {
+    "domain": "truckstop.com",
+    "platformName": "Truckstop",
+    "companyName": "Truckstop.com, LLC",
+    "category": "Load board",
+    "officialUrl": "https://truckstop.com/",
+    "brandKeywords": [
+      "truckstop"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "PR Newswire, 2021-03-22, \"Truckstop.com Acquires Registry Monitoring Insurance Services (RMIS)\" lists www.truckstop.com \u2014 https://www.prnewswire.com/news-releases/truckstopcom-acquires-registry-monitoring-insurance-services-rmis-301252521.html",
+    "verifiedAt": "2026-11-11T22:28:25.426Z",
+    "notes": "Live title: \"Load Board and Freight Management Software | Truckstop\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://truckstop.com/",
+        "title": "Load Board and Freight Management Software | Truckstop"
+      },
+      "nameservers": [
+        "ns-1529.awsdns-63.org",
+        "ns-188.awsdns-23.com",
+        "ns-2024.awsdns-61.co.uk",
+        "ns-892.awsdns-47.net"
+      ],
+      "manual": "PR Newswire, 2021-03-22, \"Truckstop.com Acquires Registry Monitoring Insurance Services (RMIS)\" lists www.truckstop.com \u2014 https://www.prnewswire.com/news-releases/truckstopcom-acquires-registry-monitoring-insurance-services-rmis-301252521.html"
+    }
+  },
+  {
+    "domain": "rmissecure.com",
+    "platformName": "RMIS",
+    "companyName": "Registry Monitoring Insurance Services (Truckstop)",
+    "category": "Carrier onboarding & compliance",
+    "officialUrl": "https://rmissecure.com/",
+    "brandKeywords": [
+      "rmis",
+      "rmissecure"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Linked from the verified official website https://truckstop.com/. Parent evidence: PR Newswire, 2021-03-22, \"Truckstop.com Acquires Registry Monitoring Insurance Services (RMIS)\" lists www.truckstop.com",
+    "verifiedAt": "2026-11-11T22:28:25.426Z",
+    "notes": null,
+    "evidence": {
+      "live": {
+        "error": "fetch failed"
+      },
+      "nameservers": [
+        "ns-1033.awsdns-01.org",
+        "ns-1917.awsdns-47.co.uk",
+        "ns-458.awsdns-57.com",
+        "ns-716.awsdns-25.net"
+      ],
+      "parentCheck": {
+        "parent": "truckstop.com",
+        "redirect": false,
+        "sharedNs": false,
+        "childNs": [
+          "ns-1033.awsdns-01.org",
+          "ns-1917.awsdns-47.co.uk",
+          "ns-458.awsdns-57.com",
+          "ns-716.awsdns-25.net"
+        ],
+        "parentNs": [
+          "ns-1529.awsdns-63.org",
+          "ns-188.awsdns-23.com",
+          "ns-2024.awsdns-61.co.uk",
+          "ns-892.awsdns-47.net"
+        ],
+        "linkedFrom": "https://truckstop.com/"
+      }
+    }
+  },
+  {
+    "domain": "123loadboard.com",
+    "platformName": "123Loadboard",
+    "companyName": "123Loadboard",
+    "category": "Load board",
+    "officialUrl": "https://www.123loadboard.com/",
+    "brandKeywords": [
+      "123loadboard",
+      "loadboard123"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q63893208 (123Loadboard) official website P856 = https://www.123loadboard.com \u2014 https://www.wikidata.org/wiki/Q63893208",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Everything You Need To Keep Freight Moving - 123Loadboard\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q63893208",
+        "label": "123Loadboard",
+        "officialWebsite": [
+          "https://www.123loadboard.com"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.123loadboard.com/",
+        "title": "Everything You Need To Keep Freight Moving - 123Loadboard"
+      },
+      "nameservers": [
+        "ns1-34.azure-dns.com",
+        "ns2-34.azure-dns.net",
+        "ns3-34.azure-dns.org",
+        "ns4-34.azure-dns.info"
+      ]
+    }
+  },
+  {
+    "domain": "directfreight.com",
+    "platformName": "Direct Freight",
+    "companyName": "Direct Freight Services",
+    "category": "Load board",
+    "officialUrl": "https://www.directfreight.com/home/",
+    "brandKeywords": [
+      "directfreight"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Direct Freight | Largest Free Load Board for Truck Drivers, Freight Brokers, Shippers, and Owner Operators\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.directfreight.com/home/",
+        "title": "Direct Freight | Largest Free Load Board for Truck Drivers, Freight Brokers, Shippers, and Owner Operators"
+      },
+      "nameservers": [
+        "ns11.constellix.com",
+        "ns21.constellix.com",
+        "ns31.constellix.com",
+        "ns41.constellix.net",
+        "ns51.constellix.net",
+        "ns61.constellix.net"
+      ]
+    }
+  },
+  {
+    "domain": "truckerpath.com",
+    "platformName": "Trucker Path",
+    "companyName": "Trucker Path",
+    "category": "Load board",
+    "officialUrl": "https://truckerpath.com/",
+    "brandKeywords": [
+      "truckerpath"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q22078075 (Trucker Path) official website P856 = http://truckerpath.com \u2014 https://www.wikidata.org/wiki/Q22078075",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Trucker Path: Truck GPS &amp; Navigation for Drivers and Fleets\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q22078075",
+        "label": "Trucker Path",
+        "officialWebsite": [
+          "http://truckerpath.com"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://truckerpath.com/",
+        "title": "Trucker Path: Truck GPS &amp; Navigation for Drivers and Fleets"
+      },
+      "nameservers": [
+        "ns-1306.awsdns-35.org",
+        "ns-1722.awsdns-23.co.uk",
+        "ns-52.awsdns-06.com",
+        "ns-960.awsdns-56.net"
+      ]
+    }
+  },
+  {
+    "domain": "mycarrierpackets.com",
+    "platformName": "MyCarrierPackets",
+    "companyName": "MyCarrierPackets",
+    "category": "Carrier onboarding & compliance",
+    "officialUrl": "https://mycarrierpackets.com/",
+    "brandKeywords": [
+      "mycarrierpackets",
+      "carrierpackets"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Home Page | MyCarrierPortal.com\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://mycarrierpackets.com/",
+        "title": "Home Page | MyCarrierPortal.com"
+      },
+      "nameservers": [
+        "ns-1233.awsdns-26.org",
+        "ns-1904.awsdns-46.co.uk",
+        "ns-369.awsdns-46.com",
+        "ns-855.awsdns-42.net"
+      ],
+      "parentCheck": {
+        "parent": "dat.com",
+        "redirect": false,
+        "sharedNs": false,
+        "childNs": [
+          "ns-1233.awsdns-26.org",
+          "ns-1904.awsdns-46.co.uk",
+          "ns-369.awsdns-46.com",
+          "ns-855.awsdns-42.net"
+        ],
+        "parentNs": [
+          "ns-1291.awsdns-33.org",
+          "ns-1556.awsdns-02.co.uk",
+          "ns-59.awsdns-07.com",
+          "ns-761.awsdns-31.net"
+        ],
+        "linkedFrom": null
+      }
+    }
+  },
+  {
+    "domain": "carrierassure.com",
+    "platformName": "Carrier Assure",
+    "companyName": "Carrier Assure",
+    "category": "Carrier onboarding & compliance",
+    "officialUrl": "https://www.carrierassure.com/",
+    "brandKeywords": [
+      "carrierassure"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "PR Newswire, 2023-06-22, \"Truckstop and Carrier Assure Announce Exclusive Partnership\" lists https://www.carrierassure.com/ \u2014 https://www.prnewswire.com/news-releases/truckstop-and-carrier-assure-announce-exclusive-partnership-to-enhance-carrier-compliance-301857565.html",
+    "verifiedAt": "2026-11-11T22:28:25.426Z",
+    "notes": "Live title: \"Find the Best Trucking Companies: OTR Carrier Performance and Ratings\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.carrierassure.com/",
+        "title": "Find the Best Trucking Companies: OTR Carrier Performance and Ratings"
+      },
+      "nameservers": [
+        "ns-110.awsdns-13.com",
+        "ns-1472.awsdns-56.org",
+        "ns-1672.awsdns-17.co.uk",
+        "ns-645.awsdns-16.net"
+      ],
+      "manual": "PR Newswire, 2023-06-22, \"Truckstop and Carrier Assure Announce Exclusive Partnership\" lists https://www.carrierassure.com/ \u2014 https://www.prnewswire.com/news-releases/truckstop-and-carrier-assure-announce-exclusive-partnership-to-enhance-carrier-compliance-301857565.html"
+    }
+  },
+  {
+    "domain": "carrier411.com",
+    "platformName": "Carrier411",
+    "companyName": "Carrier411 Services",
+    "category": "Carrier monitoring",
+    "officialUrl": "https://carrier411.com/",
+    "brandKeywords": [
+      "carrier411"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Attention Required! | Cloudflare\"",
+    "evidence": {
+      "live": {
+        "status": 403,
+        "finalUrl": "https://carrier411.com/",
+        "title": "Attention Required! | Cloudflare"
+      },
+      "nameservers": [
+        "grannbo.ns.cloudflare.com",
+        "woz.ns.cloudflare.com"
+      ]
+    }
+  },
+  {
+    "domain": "saferwatch.com",
+    "platformName": "SaferWatch",
+    "companyName": "SaferWatch",
+    "category": "Carrier monitoring",
+    "officialUrl": "http://www.saferwatch.com/",
+    "brandKeywords": [
+      "saferwatch"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"SaferWatch - Login\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "http://www.saferwatch.com/",
+        "title": "SaferWatch - Login"
+      },
+      "nameservers": [
+        "gannon.ns.cloudflare.com",
+        "hazel.ns.cloudflare.com"
+      ]
+    }
+  },
+  {
+    "domain": "fmcsa.dot.gov",
+    "platformName": "FMCSA",
+    "companyName": "Federal Motor Carrier Safety Administration",
+    "category": "Government registration",
+    "officialUrl": "https://fmcsa.dot.gov/",
+    "brandKeywords": [
+      "fmcsa",
+      "usdot"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q5440305 (Federal Motor Carrier Safety Administration) official website P856 = http://www.fmcsa.dot.gov/, https://www.fmcsa.dot.gov/, https://safer.fmcsa.dot.gov/ \u2014 https://www.wikidata.org/wiki/Q5440305",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": null,
+    "evidence": {
+      "wikidata": {
+        "id": "Q5440305",
+        "label": "Federal Motor Carrier Safety Administration",
+        "officialWebsite": [
+          "http://www.fmcsa.dot.gov/",
+          "https://www.fmcsa.dot.gov/",
+          "https://safer.fmcsa.dot.gov/"
+        ]
+      },
+      "live": {
+        "error": "fetch failed"
+      },
+      "nameservers": [
+        "a1-97.akam.net",
+        "a11-65.akam.net",
+        "a12-64.akam.net",
+        "a14-64.akam.net",
+        "a24-64.akam.net",
+        "a5-65.akam.net"
+      ]
+    }
+  },
+  {
+    "domain": "transportation.gov",
+    "platformName": "U.S. DOT",
+    "companyName": "U.S. Department of Transportation",
+    "category": "Government registration",
+    "officialUrl": "https://www.transportation.gov/",
+    "brandKeywords": [
+      "usdot"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q852211 (United States Department of Transportation) official website P856 = http://www.dot.fed.us/, https://dot.gov, https://transportation.gov \u2014 https://www.wikidata.org/wiki/Q852211",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Access Denied\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q852211",
+        "label": "United States Department of Transportation",
+        "officialWebsite": [
+          "http://www.dot.fed.us/",
+          "https://dot.gov",
+          "https://transportation.gov"
+        ]
+      },
+      "live": {
+        "status": 403,
+        "finalUrl": "https://www.transportation.gov/",
+        "title": "Access Denied"
+      },
+      "nameservers": [
+        "a1-97.akam.net",
+        "a11-65.akam.net",
+        "a12-64.akam.net",
+        "a14-64.akam.net",
+        "a24-64.akam.net",
+        "a5-65.akam.net"
+      ]
+    }
+  },
+  {
+    "domain": "login.gov",
+    "platformName": "Login.gov",
+    "companyName": "U.S. General Services Administration",
+    "category": "Government identity",
+    "officialUrl": "https://login.gov/",
+    "brandKeywords": [
+      "logingov"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q48969410 (login.gov) official website P856 = https://login.gov/, https://login.gov/es/, https://login.gov/fr/ \u2014 https://www.wikidata.org/wiki/Q48969410",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"The public\u2019s one account for government. | Login.gov\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q48969410",
+        "label": "login.gov",
+        "officialWebsite": [
+          "https://login.gov/",
+          "https://login.gov/es/",
+          "https://login.gov/fr/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://login.gov/",
+        "title": "The public\u2019s one account for government. | Login.gov"
+      },
+      "nameservers": [
+        "ns-1458.awsdns-54.org",
+        "ns-1641.awsdns-13.co.uk",
+        "ns-249.awsdns-31.com",
+        "ns-521.awsdns-01.net"
+      ]
+    }
+  },
+  {
+    "domain": "chrobinson.com",
+    "platformName": "C.H. Robinson",
+    "companyName": "C.H. Robinson Worldwide, Inc.",
+    "category": "Freight broker",
+    "officialUrl": "https://www.chrobinson.com/en-us/",
+    "brandKeywords": [
+      "chrobinson",
+      "chrobinsons"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q931200 (C. H. Robinson Worldwide) official website P856 = http://www.chrobinson.com/, https://www.chrobinson.com/ \u2014 https://www.wikidata.org/wiki/Q931200",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"C.H. Robinson | Third Party Logistics (3PL) & Supply Chain Management\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q931200",
+        "label": "C. H. Robinson Worldwide",
+        "officialWebsite": [
+          "http://www.chrobinson.com/",
+          "https://www.chrobinson.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.chrobinson.com/en-us/",
+        "title": "C.H. Robinson | Third Party Logistics (3PL) & Supply Chain Management"
+      },
+      "nameservers": [
+        "kiki.ns.cloudflare.com",
+        "vick.ns.cloudflare.com"
+      ]
+    }
+  },
+  {
+    "domain": "navisphere.com",
+    "platformName": "Navisphere (C.H. Robinson)",
+    "companyName": "C.H. Robinson Worldwide, Inc.",
+    "category": "Freight management system",
+    "officialUrl": "https://www.chrobinson.com/en-us/",
+    "brandKeywords": [
+      "navisphere"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "Redirects to chrobinson.com but nameservers differ; manual verification required",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"C.H. Robinson | Third Party Logistics (3PL) & Supply Chain Management\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.chrobinson.com/en-us/",
+        "title": "C.H. Robinson | Third Party Logistics (3PL) & Supply Chain Management"
+      },
+      "nameservers": [
+        "darwin.ns.cloudflare.com",
+        "tricia.ns.cloudflare.com"
+      ],
+      "parentRedirect": true,
+      "sharedNameservers": false,
+      "parentLinks": false,
+      "parentCheck": {
+        "parent": "chrobinson.com",
+        "redirect": true,
+        "sharedNs": false,
+        "childNs": [
+          "darwin.ns.cloudflare.com",
+          "tricia.ns.cloudflare.com"
+        ],
+        "parentNs": [
+          "kiki.ns.cloudflare.com",
+          "vick.ns.cloudflare.com"
+        ],
+        "linkedFrom": null
+      }
+    }
+  },
+  {
+    "domain": "navispherecarrier.com",
+    "platformName": "Navisphere Carrier (C.H. Robinson)",
+    "companyName": "C.H. Robinson Worldwide, Inc.",
+    "category": "Carrier portal",
+    "officialUrl": "https://www.navispherecarrier.com/",
+    "brandKeywords": [
+      "navispherecarrier"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Linked from the verified official website https://www.chrobinson.com/en-us/ (parent verified via Wikidata Q931200 (C. H. Robinson Worldwide) official website P856 = http://www.chrobinson.com/, https://www.chrobinson.com/)",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Navisphere\u00ae Carrier\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.navispherecarrier.com/",
+        "title": "Navisphere\u00ae Carrier"
+      },
+      "nameservers": [
+        "clara.ns.cloudflare.com",
+        "simon.ns.cloudflare.com"
+      ],
+      "parentRedirect": false,
+      "sharedNameservers": false,
+      "parentLinks": true
+    }
+  },
+  {
+    "domain": "freightquote.com",
+    "platformName": "Freightquote (C.H. Robinson)",
+    "companyName": "C.H. Robinson Worldwide, Inc.",
+    "category": "Freight marketplace",
+    "officialUrl": "https://www.freightquote.com/",
+    "brandKeywords": [
+      "freightquote"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q5501400 (Freightquote.com) official website P856 = http://www.freightquote.com/ \u2014 https://www.wikidata.org/wiki/Q5501400",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Freight Shipping Quotes - LTL &amp; Truckload with Instant Rates | Freightquote\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q5501400",
+        "label": "Freightquote.com",
+        "officialWebsite": [
+          "http://www.freightquote.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.freightquote.com/",
+        "title": "Freight Shipping Quotes - LTL &amp; Truckload with Instant Rates | Freightquote"
+      },
+      "nameservers": [
+        "clara.ns.cloudflare.com",
+        "simon.ns.cloudflare.com"
+      ]
+    }
+  },
+  {
+    "domain": "tql.com",
+    "platformName": "TQL",
+    "companyName": "Total Quality Logistics, LLC",
+    "category": "Freight broker",
+    "officialUrl": "https://www.tql.com/",
+    "brandKeywords": [
+      "tql"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q7828052 (Total Quality Logistics) official website P856 = http://www.tql.com, https://www.tql.com/ \u2014 https://www.wikidata.org/wiki/Q7828052",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"TQL | Truckload, LTL, Intermodal, Drayage, Air, Ocean, Specialized Services\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q7828052",
+        "label": "Total Quality Logistics",
+        "officialWebsite": [
+          "http://www.tql.com",
+          "https://www.tql.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.tql.com/",
+        "title": "TQL | Truckload, LTL, Intermodal, Drayage, Air, Ocean, Specialized Services"
+      },
+      "nameservers": [
+        "ns3.level3.net",
+        "ns4.level3.net"
+      ]
+    }
+  },
+  {
+    "domain": "uberfreight.com",
+    "platformName": "Uber Freight",
+    "companyName": "Uber Freight",
+    "category": "Freight marketplace",
+    "officialUrl": "https://www.uberfreight.com/en-US",
+    "brandKeywords": [
+      "uberfreight"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Uber Technologies investor relations (investor.uber.com) press release 2021-11-15 \"Uber Freight Completes Acquisition of Transplace\" links https://www.uberfreight.com/ \u2014 https://investor.uber.com/news-events/news/press-release-details/2021/Uber-Freight-Completes-Acquisition-of-Transplace/default.aspx",
+    "verifiedAt": "2026-11-11T22:28:25.426Z",
+    "notes": "Live title: \"Transportation &amp; logistics solutions | Uber Freight\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.uberfreight.com/en-US",
+        "title": "Transportation &amp; logistics solutions | Uber Freight"
+      },
+      "nameservers": [
+        "ns-cloud-d1.googledomains.com",
+        "ns-cloud-d2.googledomains.com",
+        "ns-cloud-d3.googledomains.com",
+        "ns-cloud-d4.googledomains.com"
+      ],
+      "manual": "Uber Technologies investor relations (investor.uber.com) press release 2021-11-15 \"Uber Freight Completes Acquisition of Transplace\" links https://www.uberfreight.com/ \u2014 https://investor.uber.com/news-events/news/press-release-details/2021/Uber-Freight-Completes-Acquisition-of-Transplace/default.aspx"
+    }
+  },
+  {
+    "domain": "rxo.com",
+    "platformName": "RXO",
+    "companyName": "RXO, Inc.",
+    "category": "Freight broker",
+    "officialUrl": "https://rxo.com/",
+    "brandKeywords": [
+      "rxo"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q128996717 (RXO) official website P856 = https://rxo.com/ \u2014 https://www.wikidata.org/wiki/Q128996717",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"RXO - Smart solutions to move your freight - RXO\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q128996717",
+        "label": "RXO",
+        "officialWebsite": [
+          "https://rxo.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://rxo.com/",
+        "title": "RXO - Smart solutions to move your freight - RXO"
+      },
+      "nameservers": [
+        "f5-extdns-clt.rxo.com",
+        "f5-extdns-clt.rxo.com_inside",
+        "inpau10022.rxo.com"
+      ]
+    }
+  },
+  {
+    "domain": "echo.com",
+    "platformName": "Echo Global Logistics",
+    "companyName": "Echo Global Logistics, Inc.",
+    "category": "Freight broker",
+    "officialUrl": "https://echo.com/",
+    "brandKeywords": [
+      "echoglobal",
+      "echologistics"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "SEC EDGAR: Echo Global Logistics, Inc. (CIK 0001426945) Form 8-K Exhibit 99.1 filed 2010-11-03 references www.echo.com \u2014 https://www.sec.gov/Archives/edgar/data/1426945/000110465910055648/a10-20477_1ex99d1.htm",
+    "verifiedAt": "2026-11-11T22:28:25.426Z",
+    "notes": "Live title: \"403 - Forbidden\"",
+    "evidence": {
+      "live": {
+        "status": 403,
+        "finalUrl": "https://echo.com/",
+        "title": "403 - Forbidden"
+      },
+      "nameservers": [
+        "udns1.ultradns.net",
+        "udns2.ultradns.net"
+      ],
+      "manual": "SEC EDGAR: Echo Global Logistics, Inc. (CIK 0001426945) Form 8-K Exhibit 99.1 filed 2010-11-03 references www.echo.com \u2014 https://www.sec.gov/Archives/edgar/data/1426945/000110465910055648/a10-20477_1ex99d1.htm"
+    }
+  },
+  {
+    "domain": "convoy.com",
+    "platformName": "Convoy",
+    "companyName": "Convoy, Inc. (ceased operations 2023)",
+    "category": "Freight marketplace",
+    "officialUrl": "https://convoy.com/",
+    "brandKeywords": [
+      "convoyfreight"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q39078842 (Convoy) official website P856 = https://convoy.com/ \u2014 https://www.wikidata.org/wiki/Q39078842",
+    "verifiedAt": "2026-11-11T22:23:34.637Z",
+    "notes": "Convoy ceased brokerage operations in October 2023; verify current ownership before relying on this domain. \u00b7 Live title: \"The Convoy Platform\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://convoy.com/",
+        "title": "The Convoy Platform"
+      },
+      "nameservers": [
+        "ns-1297.awsdns-34.org",
+        "ns-184.awsdns-23.com",
+        "ns-1981.awsdns-55.co.uk",
+        "ns-572.awsdns-07.net"
+      ],
+      "wikidata": {
+        "id": "Q39078842",
+        "label": "Convoy",
+        "officialWebsite": [
+          "https://convoy.com/"
+        ]
+      }
+    }
+  },
+  {
+    "domain": "coyote.com",
+    "platformName": "Coyote Logistics",
+    "companyName": "Coyote Logistics, LLC",
+    "category": "Freight broker",
+    "officialUrl": "https://coyote.com/",
+    "brandKeywords": [
+      "coyotelogistics"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"404 - Unknown site\"",
+    "evidence": {
+      "live": {
+        "status": 404,
+        "finalUrl": "https://coyote.com/",
+        "title": "404 - Unknown site"
+      },
+      "nameservers": [
+        "pdns71.ultradns.biz",
+        "pdns71.ultradns.co.uk",
+        "pdns71.ultradns.com",
+        "pdns71.ultradns.info",
+        "pdns71.ultradns.net",
+        "pdns71.ultradns.org"
+      ]
+    }
+  },
+  {
+    "domain": "jbhunt.com",
+    "platformName": "J.B. Hunt",
+    "companyName": "J.B. Hunt Transport Services, Inc.",
+    "category": "Transportation company",
+    "officialUrl": "https://www.jbhunt.com/",
+    "brandKeywords": [
+      "jbhunt"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q4041705 (J. B. Hunt) official website P856 = https://www.jbhunt.com/ \u2014 https://www.wikidata.org/wiki/Q4041705",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Logistics Services and Freight Shipping | J.B. Hunt\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q4041705",
+        "label": "J. B. Hunt",
+        "officialWebsite": [
+          "https://www.jbhunt.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.jbhunt.com/",
+        "title": "Logistics Services and Freight Shipping | J.B. Hunt"
+      },
+      "nameservers": [
+        "ns1-02.azure-dns.com",
+        "ns2-02.azure-dns.net",
+        "ns3-02.azure-dns.org",
+        "ns4-02.azure-dns.info"
+      ]
+    }
+  },
+  {
+    "domain": "landstar.com",
+    "platformName": "Landstar",
+    "companyName": "Landstar System, Inc.",
+    "category": "Transportation company",
+    "officialUrl": "https://www.landstar.com/",
+    "brandKeywords": [
+      "landstar"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q6485221 (Landstar System) official website P856 = https://www.landstar.com/ \u2014 https://www.wikidata.org/wiki/Q6485221",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Landstar System, Inc. | Transportation Solutions Provider\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q6485221",
+        "label": "Landstar System",
+        "officialWebsite": [
+          "https://www.landstar.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.landstar.com/",
+        "title": "Landstar System, Inc. | Transportation Solutions Provider"
+      },
+      "nameservers": [
+        "udns1.cscdns.net",
+        "udns2.cscdns.uk"
+      ]
+    }
+  },
+  {
+    "domain": "arrivelogistics.com",
+    "platformName": "Arrive Logistics",
+    "companyName": "Arrive Logistics",
+    "category": "Freight broker",
+    "officialUrl": "https://arrivelogistics.com/",
+    "brandKeywords": [
+      "arrivelogistics"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Just a moment...\"",
+    "evidence": {
+      "live": {
+        "status": 403,
+        "finalUrl": "https://arrivelogistics.com/",
+        "title": "Just a moment..."
+      },
+      "nameservers": [
+        "algin.ns.cloudflare.com",
+        "becky.ns.cloudflare.com"
+      ]
+    }
+  },
+  {
+    "domain": "schneider.com",
+    "platformName": "Schneider",
+    "companyName": "Schneider National, Inc.",
+    "category": "Transportation company",
+    "officialUrl": "https://schneider.com/",
+    "brandKeywords": [
+      "schneider"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q7431894 (Schneider National) official website P856 = http://www.schneider.com \u2014 https://www.wikidata.org/wiki/Q7431894",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": null,
+    "evidence": {
+      "wikidata": {
+        "id": "Q7431894",
+        "label": "Schneider National",
+        "officialWebsite": [
+          "http://www.schneider.com"
+        ]
+      },
+      "live": {
+        "error": "fetch failed"
+      },
+      "nameservers": [
+        "auth1.dns.cogentco.com",
+        "auth2.dns.cogentco.com",
+        "cbru.br.ns.els-gms.att.net",
+        "cmtu.mt.ns.els-gms.att.net",
+        "ns.b1ddi.schneider.com"
+      ]
+    }
+  },
+  {
+    "domain": "werner.com",
+    "platformName": "Werner Enterprises",
+    "companyName": "Werner Enterprises, Inc.",
+    "category": "Transportation company",
+    "officialUrl": "https://werner.com/",
+    "brandKeywords": [
+      "wernerenterprises"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q7983382 (Werner Enterprises) official website P856 = https://www.werner.com/ \u2014 https://www.wikidata.org/wiki/Q7983382",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Attention Required! | Cloudflare\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q7983382",
+        "label": "Werner Enterprises",
+        "officialWebsite": [
+          "https://www.werner.com/"
+        ]
+      },
+      "live": {
+        "status": 403,
+        "finalUrl": "https://werner.com/",
+        "title": "Attention Required! | Cloudflare"
+      },
+      "nameservers": [
+        "deborah.ns.cloudflare.com",
+        "tosana.ns.cloudflare.com"
+      ]
+    }
+  },
+  {
+    "domain": "knight-swift.com",
+    "platformName": "Knight-Swift",
+    "companyName": "Knight-Swift Transportation Holdings Inc.",
+    "category": "Transportation company",
+    "officialUrl": "https://knight-swift.com/",
+    "brandKeywords": [
+      "knightswift"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q6422289 (Knight-Swift Transportation) official website P856 = http://knight-swift.com/ \u2014 https://www.wikidata.org/wiki/Q6422289",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": null,
+    "evidence": {
+      "wikidata": {
+        "id": "Q6422289",
+        "label": "Knight-Swift Transportation",
+        "officialWebsite": [
+          "http://knight-swift.com/"
+        ]
+      },
+      "live": {
+        "status": 403,
+        "finalUrl": "https://knight-swift.com/",
+        "title": null
+      },
+      "nameservers": [
+        "ns-1398.awsdns-46.org",
+        "ns-1599.awsdns-07.co.uk",
+        "ns-427.awsdns-53.com",
+        "ns-837.awsdns-40.net"
+      ]
+    }
+  },
+  {
+    "domain": "xpo.com",
+    "platformName": "XPO",
+    "companyName": "XPO, Inc.",
+    "category": "Transportation company",
+    "officialUrl": "https://www.xpo.com/",
+    "brandKeywords": [
+      "xpo"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q8042415 (XPO, Inc.) official website P856 = https://www.xpo.com/ \u2014 https://www.wikidata.org/wiki/Q8042415",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"XPO \u2013 LTL Freight Quotes and Logistics Services\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q8042415",
+        "label": "XPO, Inc.",
+        "officialWebsite": [
+          "https://www.xpo.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.xpo.com/",
+        "title": "XPO \u2013 LTL Freight Quotes and Logistics Services"
+      },
+      "nameservers": [
+        "inpau10267.xpo.com",
+        "inpau10927.xpo.com",
+        "ns1.f5clouddns.com",
+        "ns2.f5clouddns.com"
+      ]
+    }
+  },
+  {
+    "domain": "gxo.com",
+    "platformName": "GXO Logistics",
+    "companyName": "GXO Logistics, Inc.",
+    "category": "Logistics company",
+    "officialUrl": "https://gxo.com/",
+    "brandKeywords": [
+      "gxo"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q116550003 (GXO, Inc.) official website P856 = https://gxo.com/ \u2014 https://www.wikidata.org/wiki/Q116550003",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Logistics | GXO\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q116550003",
+        "label": "GXO, Inc.",
+        "officialWebsite": [
+          "https://gxo.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://gxo.com/",
+        "title": "Logistics | GXO"
+      },
+      "nameservers": [
+        "fdcvm90011.gxo.com",
+        "tsgvm90011.gxo.com"
+      ]
+    }
+  },
+  {
+    "domain": "hubgroup.com",
+    "platformName": "Hub Group",
+    "companyName": "Hub Group, Inc.",
+    "category": "Logistics company",
+    "officialUrl": "https://www.hubgroup.com/",
+    "brandKeywords": [
+      "hubgroup"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q17183768 (Hub Group) official website P856 = https://www.hubgroup.com/ \u2014 https://www.wikidata.org/wiki/Q17183768",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Transportation, Logistics & Supply Chain Solutions | Hub Group\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q17183768",
+        "label": "Hub Group",
+        "officialWebsite": [
+          "https://www.hubgroup.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.hubgroup.com/",
+        "title": "Transportation, Logistics & Supply Chain Solutions | Hub Group"
+      },
+      "nameservers": [
+        "ns-1500.awsdns-59.org",
+        "ns-1760.awsdns-28.co.uk",
+        "ns-384.awsdns-48.com",
+        "ns-971.awsdns-57.net"
+      ]
+    }
+  },
+  {
+    "domain": "loadsmart.com",
+    "platformName": "Loadsmart",
+    "companyName": "Loadsmart, Inc.",
+    "category": "Freight marketplace",
+    "officialUrl": "https://loadsmart.com/",
+    "brandKeywords": [
+      "loadsmart"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Loadsmart AI | Logistics AI for Freight &amp; Warehouse\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://loadsmart.com/",
+        "title": "Loadsmart AI | Logistics AI for Freight &amp; Warehouse"
+      },
+      "nameservers": [
+        "ns-1496.awsdns-59.org",
+        "ns-1579.awsdns-05.co.uk",
+        "ns-315.awsdns-39.com",
+        "ns-748.awsdns-29.net"
+      ]
+    }
+  },
+  {
+    "domain": "flexport.com",
+    "platformName": "Flexport",
+    "companyName": "Flexport, Inc.",
+    "category": "Freight forwarder",
+    "officialUrl": "https://www.flexport.com/",
+    "brandKeywords": [
+      "flexport"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q23016856 (Flexport) official website P856 = https://www.flexport.com \u2014 https://www.wikidata.org/wiki/Q23016856",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Freight Forwarding &amp; Supply Chain Platform | Flexport\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q23016856",
+        "label": "Flexport",
+        "officialWebsite": [
+          "https://www.flexport.com"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.flexport.com/",
+        "title": "Freight Forwarding &amp; Supply Chain Platform | Flexport"
+      },
+      "nameservers": [
+        "ns-1360.awsdns-42.org",
+        "ns-1960.awsdns-53.co.uk",
+        "ns-219.awsdns-27.com",
+        "ns-542.awsdns-03.net"
+      ]
+    }
+  },
+  {
+    "domain": "freightos.com",
+    "platformName": "Freightos",
+    "companyName": "Freightos Limited",
+    "category": "Freight marketplace",
+    "officialUrl": "https://www.freightos.com/",
+    "brandKeywords": [
+      "freightos"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q15281574 (Freightos) official website P856 = https://www.freightos.com/ \u2014 https://www.wikidata.org/wiki/Q15281574",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Freightos | Online Freight Shipping Marketplace &amp; Platform\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q15281574",
+        "label": "Freightos",
+        "officialWebsite": [
+          "https://www.freightos.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.freightos.com/",
+        "title": "Freightos | Online Freight Shipping Marketplace &amp; Platform"
+      },
+      "nameservers": [
+        "beau.ns.cloudflare.com",
+        "gail.ns.cloudflare.com"
+      ]
+    }
+  },
+  {
+    "domain": "amazon.com",
+    "platformName": "Amazon (Relay, Freight, Seller Central)",
+    "companyName": "Amazon.com, Inc.",
+    "category": "Logistics & seller platform",
+    "officialUrl": "https://www.amazon.com/",
+    "brandKeywords": [
+      "amazon",
+      "amazonrelay",
+      "amazonfreight",
+      "sellercentral"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q3884 (Amazon) official website P856 = https://www.amazon.it/, https://www.amazon.co.uk/, https://www.amazon.es/, https://www.amazon.in/, https://www.amazon.nl/, https://www.amazon.com.tr/, https://www.amazon.co.jp/, https://www.amazon.de/, https://www.amazon.com.au/, https://www.amazon.com.br/, https://www.amazon.sa/, https://www.amazon.com/, https://www.amazon.com.mx/ \u2014 https://www.wikidata.org/wiki/Q3884",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Covers relay.amazon.com, freight.amazon.com, sellercentral.amazon.com and logistics.amazon.com. Customer content on amazonaws.com is NOT covered. \u00b7 Live title: \"Amazon.com\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q3884",
+        "label": "Amazon",
+        "officialWebsite": [
+          "https://www.amazon.it/",
+          "https://www.amazon.co.uk/",
+          "https://www.amazon.es/",
+          "https://www.amazon.in/",
+          "https://www.amazon.nl/",
+          "https://www.amazon.com.tr/",
+          "https://www.amazon.co.jp/",
+          "https://www.amazon.de/",
+          "https://www.amazon.com.au/",
+          "https://www.amazon.com.br/",
+          "https://www.amazon.sa/",
+          "https://www.amazon.com/",
+          "https://www.amazon.com.mx/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.amazon.com/",
+        "title": "Amazon.com"
+      },
+      "nameservers": [
+        "ns-1447.awsdns-52.org",
+        "ns-1707.awsdns-21.co.uk",
+        "ns-264.awsdns-33.com",
+        "ns-521.awsdns-01.net"
+      ]
+    }
+  },
+  {
+    "domain": "ups.com",
+    "platformName": "UPS",
+    "companyName": "United Parcel Service, Inc.",
+    "category": "Parcel & freight carrier",
+    "officialUrl": "https://www.ups.com/",
+    "brandKeywords": [
+      "ups"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q155026 (United Parcel Service) official website P856 = https://www.ups.com/, https://www.ups.com.tr/, https://www.kiala.fr \u2014 https://www.wikidata.org/wiki/Q155026",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Access Denied\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q155026",
+        "label": "United Parcel Service",
+        "officialWebsite": [
+          "https://www.ups.com/",
+          "https://www.ups.com.tr/",
+          "https://www.kiala.fr"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.ups.com/",
+        "title": "Access Denied"
+      },
+      "nameservers": [
+        "auth1.dns.cogentco.com",
+        "auth2.dns.cogentco.com",
+        "cbru.br.ns.els-gms.att.net",
+        "cmtu.mt.ns.els-gms.att.net",
+        "nsa.ups.com",
+        "nsb.ups.com"
+      ]
+    }
+  },
+  {
+    "domain": "fedex.com",
+    "platformName": "FedEx",
+    "companyName": "FedEx Corporation",
+    "category": "Parcel & freight carrier",
+    "officialUrl": "https://www.fedex.com/",
+    "brandKeywords": [
+      "fedex"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q459477 (FedEx) official website P856 = https://www.fedex.com/, https://www.fedex.com/en-ca/home.html \u2014 https://www.wikidata.org/wiki/Q459477",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"FedEx\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q459477",
+        "label": "FedEx",
+        "officialWebsite": [
+          "https://www.fedex.com/",
+          "https://www.fedex.com/en-ca/home.html"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.fedex.com/",
+        "title": "FedEx"
+      },
+      "nameservers": [
+        "a10.dns.fedex.com",
+        "a5.dns.fedex.com",
+        "a6.dns.fedex.com",
+        "a7.dns.fedex.com",
+        "a8.dns.fedex.com",
+        "a9.dns.fedex.com",
+        "n2-a1.aka-ns.net",
+        "n2-a5.aka-ns.net",
+        "n2-a7.aka-ns.net",
+        "pdns1.cscdns.net",
+        "pdns2.cscdns.net"
+      ]
+    }
+  },
+  {
+    "domain": "dhl.com",
+    "platformName": "DHL",
+    "companyName": "DHL Group",
+    "category": "Parcel & freight carrier",
+    "officialUrl": "https://dhl.com/",
+    "brandKeywords": [
+      "dhl"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q489815 (DHL) official website P856 = https://www.dhl.com, https://www.dhlparcel.nl/, https://www.send.dhlparcel.co.uk, https://mydhl.express.dhl/, https://www.dhlparcel.pl, https://parcel.dhl.co.uk/, https://dhlproductosyservicios.com/, https://dhl.com.mx, https://express.dhl.ru/, https://dhl.es, http://dhl.com.tr/, https://ecommerceportal.dhl.com/, https://www.dhl.it \u2014 https://www.wikidata.org/wiki/Q489815",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": null,
+    "evidence": {
+      "wikidata": {
+        "id": "Q489815",
+        "label": "DHL",
+        "officialWebsite": [
+          "https://www.dhl.com",
+          "https://www.dhlparcel.nl/",
+          "https://www.send.dhlparcel.co.uk",
+          "https://mydhl.express.dhl/",
+          "https://www.dhlparcel.pl",
+          "https://parcel.dhl.co.uk/",
+          "https://dhlproductosyservicios.com/",
+          "https://dhl.com.mx",
+          "https://express.dhl.ru/",
+          "https://dhl.es",
+          "http://dhl.com.tr/",
+          "https://ecommerceportal.dhl.com/",
+          "https://www.dhl.it"
+        ]
+      },
+      "live": {
+        "error": "The operation was aborted due to timeout"
+      },
+      "nameservers": [
+        "ns1.f5clouddns.com",
+        "ns2.f5clouddns.com"
+      ]
+    }
+  },
+  {
+    "domain": "usps.com",
+    "platformName": "USPS",
+    "companyName": "United States Postal Service",
+    "category": "Postal service",
+    "officialUrl": "https://www.usps.com/",
+    "brandKeywords": [
+      "usps"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q668687 (United States Postal Service) official website P856 = https://www.usps.com/, http://www.usps.gov/, https://tools.usps.com/ \u2014 https://www.wikidata.org/wiki/Q668687",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Welcome | USPS\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q668687",
+        "label": "United States Postal Service",
+        "officialWebsite": [
+          "https://www.usps.com/",
+          "http://www.usps.gov/",
+          "https://tools.usps.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.usps.com/",
+        "title": "Welcome | USPS"
+      },
+      "nameservers": [
+        "n2-a1.aka-ns.net",
+        "n2-a13.aka-ns.net",
+        "n2-a22.aka-ns.net",
+        "n2-a28.aka-ns.net",
+        "n2-a8.aka-ns.net",
+        "n2-a9.aka-ns.net"
+      ]
+    }
+  },
+  {
+    "domain": "maersk.com",
+    "platformName": "Maersk",
+    "companyName": "A.P. Moller - Maersk",
+    "category": "Ocean carrier",
+    "officialUrl": "https://maersk.com/",
+    "brandKeywords": [
+      "maersk"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q18224 (Maersk) official website P856 = https://www.maersk.com/ \u2014 https://www.wikidata.org/wiki/Q18224",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": null,
+    "evidence": {
+      "wikidata": {
+        "id": "Q18224",
+        "label": "Maersk",
+        "officialWebsite": [
+          "https://www.maersk.com/"
+        ]
+      },
+      "live": {
+        "error": "fetch failed"
+      },
+      "nameservers": [
+        "a1-4.akam.net",
+        "a13-67.akam.net",
+        "a18-64.akam.net",
+        "a22-65.akam.net",
+        "a3-66.akam.net",
+        "a8-67.akam.net"
+      ]
+    }
+  },
+  {
+    "domain": "msc.com",
+    "platformName": "MSC",
+    "companyName": "Mediterranean Shipping Company",
+    "category": "Ocean carrier",
+    "officialUrl": "https://www.msc.com/",
+    "brandKeywords": [
+      "msc"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q869570 (Mediterranean Shipping Company) official website P856 = http://www.msc.com/ \u2014 https://www.wikidata.org/wiki/Q869570",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Access Denied\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q869570",
+        "label": "Mediterranean Shipping Company",
+        "officialWebsite": [
+          "http://www.msc.com/"
+        ]
+      },
+      "live": {
+        "status": 403,
+        "finalUrl": "https://www.msc.com/",
+        "title": "Access Denied"
+      },
+      "nameservers": [
+        "ns1-08.azure-dns.com",
+        "ns2-08.azure-dns.net",
+        "ns3-08.azure-dns.org",
+        "ns4-08.azure-dns.info"
+      ]
+    }
+  },
+  {
+    "domain": "cma-cgm.com",
+    "platformName": "CMA CGM",
+    "companyName": "CMA CGM Group",
+    "category": "Ocean carrier",
+    "officialUrl": "https://www.cma-cgm.com/",
+    "brandKeywords": [
+      "cmacgm"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q1023867 (CMA CGM) official website P856 = https://www.cma-cgm.com/, https://www.cmacgm-group.com, https://www.cma-cgm.fr \u2014 https://www.wikidata.org/wiki/Q1023867",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"cma-cgm.com\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q1023867",
+        "label": "CMA CGM",
+        "officialWebsite": [
+          "https://www.cma-cgm.com/",
+          "https://www.cmacgm-group.com",
+          "https://www.cma-cgm.fr"
+        ]
+      },
+      "live": {
+        "status": 403,
+        "finalUrl": "https://www.cma-cgm.com/",
+        "title": "cma-cgm.com"
+      },
+      "nameservers": [
+        "ns-1303.awsdns-34.org",
+        "ns-1593.awsdns-07.co.uk",
+        "ns-492.awsdns-61.com",
+        "ns-861.awsdns-43.net"
+      ]
+    }
+  },
+  {
+    "domain": "hapag-lloyd.com",
+    "platformName": "Hapag-Lloyd",
+    "companyName": "Hapag-Lloyd AG",
+    "category": "Ocean carrier",
+    "officialUrl": "https://hapag-lloyd.com/",
+    "brandKeywords": [
+      "hapaglloyd",
+      "hapag"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q819094 (Hapag-Lloyd) official website P856 = https://www.hapag-lloyd.com/, http://hapag-lloyd.com \u2014 https://www.wikidata.org/wiki/Q819094",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": null,
+    "evidence": {
+      "wikidata": {
+        "id": "Q819094",
+        "label": "Hapag-Lloyd",
+        "officialWebsite": [
+          "https://www.hapag-lloyd.com/",
+          "http://hapag-lloyd.com"
+        ]
+      },
+      "live": {
+        "error": "fetch failed"
+      },
+      "nameservers": [
+        "pdns1.cscdns.net",
+        "pdns2.cscdns.net"
+      ]
+    }
+  },
+  {
+    "domain": "coscoshipping.com",
+    "platformName": "COSCO Shipping",
+    "companyName": "China COSCO Shipping",
+    "category": "Ocean carrier",
+    "officialUrl": "https://coscoshipping.com/",
+    "brandKeywords": [
+      "cosco",
+      "coscoshipping"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q26263180 (China COSCO Shipping) official website P856 = http://www.coscoshipping.com, http://www.coscocs.com, http://en.coscocs.com/, http://en.coscoshipping.com \u2014 https://www.wikidata.org/wiki/Q26263180",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": null,
+    "evidence": {
+      "wikidata": {
+        "id": "Q26263180",
+        "label": "China COSCO Shipping",
+        "officialWebsite": [
+          "http://www.coscoshipping.com",
+          "http://www.coscocs.com",
+          "http://en.coscocs.com/",
+          "http://en.coscoshipping.com"
+        ]
+      },
+      "live": {
+        "error": "fetch failed"
+      },
+      "nameservers": [
+        "vip3.alidns.com",
+        "vip4.alidns.com"
+      ]
+    }
+  },
+  {
+    "domain": "evergreen-line.com",
+    "platformName": "Evergreen Line",
+    "companyName": "Evergreen Marine Corporation",
+    "category": "Ocean carrier",
+    "officialUrl": "https://evergreen-line.com/",
+    "brandKeywords": [
+      "evergreenline"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": null,
+    "evidence": {
+      "live": {
+        "error": "fetch failed"
+      },
+      "nameservers": [
+        "ns1.evergreen-line.com",
+        "ns2.evergreen-line.com",
+        "ns3.evergreen-line.com"
+      ]
+    }
+  },
+  {
+    "domain": "one-line.com",
+    "platformName": "Ocean Network Express",
+    "companyName": "Ocean Network Express",
+    "category": "Ocean carrier",
+    "officialUrl": "https://www.one-line.com/en",
+    "brandKeywords": [
+      "oneline"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q30642747 (Ocean Network Express) official website P856 = https://www.one-line.com/ \u2014 https://www.wikidata.org/wiki/Q30642747",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Global Container Shipping Solutions | ONE\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q30642747",
+        "label": "Ocean Network Express",
+        "officialWebsite": [
+          "https://www.one-line.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.one-line.com/en",
+        "title": "Global Container Shipping Solutions | ONE"
+      },
+      "nameservers": [
+        "kanye.ns.cloudflare.com",
+        "marjory.ns.cloudflare.com"
+      ]
+    }
+  },
+  {
+    "domain": "dbschenker.com",
+    "platformName": "DB Schenker",
+    "companyName": "DB Schenker",
+    "category": "Logistics company",
+    "officialUrl": "https://www.dsv.com/en",
+    "brandKeywords": [
+      "dbschenker",
+      "schenker"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q552912 (DB Schenker) official website P856 = https://www.dbschenker.com/ \u2014 https://www.wikidata.org/wiki/Q552912",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Global Transport and Logistics | DSV\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q552912",
+        "label": "DB Schenker",
+        "officialWebsite": [
+          "https://www.dbschenker.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.dsv.com/en",
+        "title": "Global Transport and Logistics | DSV"
+      },
+      "nameservers": [
+        "ns-c.eurodns.eu",
+        "ns-d.eurodns.biz"
+      ]
+    }
+  },
+  {
+    "domain": "kuehne-nagel.com",
+    "platformName": "Kuehne+Nagel",
+    "companyName": "Kuehne + Nagel International AG",
+    "category": "Logistics company",
+    "officialUrl": "https://www.kuehne-nagel.com/",
+    "brandKeywords": [
+      "kuehnenagel",
+      "kuehne"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q671267 (Kuehne + Nagel) official website P856 = https://home.kuehne-nagel.com/, https://de.kuehne-nagel.com/, https://kr.kuehne-nagel.com/, https://cn.kuehne-nagel.com/, https://jp.kuehne-nagel.com/, https://fr.kuehne-nagel.com/, https://us.kuehne-nagel.com/ \u2014 https://www.wikidata.org/wiki/Q671267",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Global Freight Forwarding and Supply Chain Management | Kuehne+Nagel\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q671267",
+        "label": "Kuehne + Nagel",
+        "officialWebsite": [
+          "https://home.kuehne-nagel.com/",
+          "https://de.kuehne-nagel.com/",
+          "https://kr.kuehne-nagel.com/",
+          "https://cn.kuehne-nagel.com/",
+          "https://jp.kuehne-nagel.com/",
+          "https://fr.kuehne-nagel.com/",
+          "https://us.kuehne-nagel.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.kuehne-nagel.com/",
+        "title": "Global Freight Forwarding and Supply Chain Management | Kuehne+Nagel"
+      },
+      "nameservers": [
+        "a.managed-ns.com",
+        "b.managed-ns.de"
+      ]
+    }
+  },
+  {
+    "domain": "dsv.com",
+    "platformName": "DSV",
+    "companyName": "DSV A/S",
+    "category": "Logistics company",
+    "officialUrl": "https://www.dsv.com/en",
+    "brandKeywords": [
+      "dsv"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q1155771 (DSV) official website P856 = https://www.dsv.com/ \u2014 https://www.wikidata.org/wiki/Q1155771",
+    "verifiedAt": "2026-11-11T22:23:34.637Z",
+    "notes": "Live title: \"Global Transport and Logistics | DSV\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.dsv.com/en",
+        "title": "Global Transport and Logistics | DSV"
+      },
+      "nameservers": [
+        "udns1.cscdns.net",
+        "udns2.cscdns.uk"
+      ],
+      "wikidata": {
+        "id": "Q1155771",
+        "label": "DSV",
+        "officialWebsite": [
+          "https://www.dsv.com/"
+        ]
+      }
+    }
+  },
+  {
+    "domain": "expeditors.com",
+    "platformName": "Expeditors",
+    "companyName": "Expeditors International of Washington",
+    "category": "Freight forwarder",
+    "officialUrl": "https://www.expeditors.com/",
+    "brandKeywords": [
+      "expeditors"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q1384324 (Expeditors International) official website P856 = http://www.expeditors.com/ \u2014 https://www.wikidata.org/wiki/Q1384324",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Expeditors | Home\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q1384324",
+        "label": "Expeditors International",
+        "officialWebsite": [
+          "http://www.expeditors.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.expeditors.com/",
+        "title": "Expeditors | Home"
+      },
+      "nameservers": [
+        "ns.expeditors.com",
+        "ns2.expeditors.com"
+      ]
+    }
+  },
+  {
+    "domain": "cevalogistics.com",
+    "platformName": "CEVA Logistics",
+    "companyName": "CEVA Logistics",
+    "category": "Logistics company",
+    "officialUrl": "https://www.cevalogistics.com/",
+    "brandKeywords": [
+      "cevalogistics"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q2136905 (CEVA Logistics) official website P856 = https://www.cevalogistics.com \u2014 https://www.wikidata.org/wiki/Q2136905",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Just a moment...\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q2136905",
+        "label": "CEVA Logistics",
+        "officialWebsite": [
+          "https://www.cevalogistics.com"
+        ]
+      },
+      "live": {
+        "status": 403,
+        "finalUrl": "https://www.cevalogistics.com/",
+        "title": "Just a moment..."
+      },
+      "nameservers": [
+        "ns-1102.awsdns-09.org",
+        "ns-1741.awsdns-25.co.uk",
+        "ns-41.awsdns-05.com",
+        "ns-645.awsdns-16.net"
+      ]
+    }
+  },
+  {
+    "domain": "project44.com",
+    "platformName": "project44",
+    "companyName": "project44",
+    "category": "Shipment tracking & visibility",
+    "officialUrl": "https://www.project44.com/",
+    "brandKeywords": [
+      "project44"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Decision Intelligence Platform | project44\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.project44.com/",
+        "title": "Decision Intelligence Platform | project44"
+      },
+      "nameservers": [
+        "pdns13.domaincontrol.com",
+        "pdns14.domaincontrol.com"
+      ]
+    }
+  },
+  {
+    "domain": "fourkites.com",
+    "platformName": "FourKites",
+    "companyName": "FourKites, Inc.",
+    "category": "Shipment tracking & visibility",
+    "officialUrl": "https://www.fourkites.ai/",
+    "brandKeywords": [
+      "fourkites"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"FourKites: AI-Powered Supply Chain Orchestration\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.fourkites.ai/",
+        "title": "FourKites: AI-Powered Supply Chain Orchestration"
+      },
+      "nameservers": [
+        "pdns11.domaincontrol.com",
+        "pdns12.domaincontrol.com"
+      ]
+    }
+  },
+  {
+    "domain": "descartes.com",
+    "platformName": "Descartes Systems Group",
+    "companyName": "The Descartes Systems Group Inc.",
+    "category": "Freight management system",
+    "officialUrl": "https://www.descartes.com/",
+    "brandKeywords": [
+      "descartes"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q28155261 (Descartes Systems Group) official website P856 = http://www.descartes.com \u2014 https://www.wikidata.org/wiki/Q28155261",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Home | Descartes\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q28155261",
+        "label": "Descartes Systems Group",
+        "officialWebsite": [
+          "http://www.descartes.com"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.descartes.com/",
+        "title": "Home | Descartes"
+      },
+      "nameservers": [
+        "ns-1455.awsdns-53.org",
+        "ns-1703.awsdns-20.co.uk",
+        "ns-67.awsdns-08.com",
+        "ns-736.awsdns-28.net"
+      ]
+    }
+  },
+  {
+    "domain": "macropoint.com",
+    "platformName": "MacroPoint (Descartes)",
+    "companyName": "The Descartes Systems Group Inc.",
+    "category": "Shipment tracking & visibility",
+    "officialUrl": "https://macropoint.com/",
+    "brandKeywords": [
+      "macropoint"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Linked from the verified official website https://www.descartes.com/ (parent verified via Wikidata Q28155261 (Descartes Systems Group) official website P856 = http://www.descartes.com)",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"AI-Powered Supply Chain Visibility Software | Descartes MacroPoint\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://macropoint.com/",
+        "title": "AI-Powered Supply Chain Visibility Software | Descartes MacroPoint"
+      },
+      "nameservers": [
+        "ns-1175.awsdns-18.org",
+        "ns-1710.awsdns-21.co.uk",
+        "ns-222.awsdns-27.com",
+        "ns-868.awsdns-44.net"
+      ],
+      "parentRedirect": false,
+      "sharedNameservers": false,
+      "parentLinks": true
+    }
+  },
+  {
+    "domain": "trimble.com",
+    "platformName": "Trimble Transportation",
+    "companyName": "Trimble Inc.",
+    "category": "Freight management system",
+    "officialUrl": "https://www.trimble.com/en",
+    "brandKeywords": [
+      "trimble"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q2297063 (Trimble) official website P856 = http://www.trimble.com \u2014 https://www.wikidata.org/wiki/Q2297063",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Trimble Software &amp; Hardware | Office-to-Field Solutions\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q2297063",
+        "label": "Trimble",
+        "officialWebsite": [
+          "http://www.trimble.com"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.trimble.com/en",
+        "title": "Trimble Software &amp; Hardware | Office-to-Field Solutions"
+      },
+      "nameservers": [
+        "ns-1125.awsdns-12.org",
+        "ns-1653.awsdns-14.co.uk",
+        "ns-569.awsdns-07.net",
+        "ns-6.awsdns-00.com"
+      ]
+    }
+  },
+  {
+    "domain": "mcleodsoftware.com",
+    "platformName": "McLeod Software",
+    "companyName": "McLeod Software",
+    "category": "Freight management system",
+    "officialUrl": "https://www.mcleodsoftware.com/",
+    "brandKeywords": [
+      "mcleodsoftware"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Just a moment...\"",
+    "evidence": {
+      "live": {
+        "status": 403,
+        "finalUrl": "https://www.mcleodsoftware.com/",
+        "title": "Just a moment..."
+      },
+      "nameservers": [
+        "heidi.ns.cloudflare.com",
+        "houston.ns.cloudflare.com"
+      ]
+    }
+  },
+  {
+    "domain": "samsara.com",
+    "platformName": "Samsara",
+    "companyName": "Samsara Inc.",
+    "category": "Fleet telematics / ELD",
+    "officialUrl": "https://www.samsara.com/",
+    "brandKeywords": [
+      "samsara"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q79543668 (Samsara) official website P856 = http://samsara.com/ \u2014 https://www.wikidata.org/wiki/Q79543668",
+    "verifiedAt": "2026-11-11T22:23:34.637Z",
+    "notes": "Live title: \"Samsara | The Connected Operations Platform\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.samsara.com/",
+        "title": "Samsara | The Connected Operations Platform"
+      },
+      "nameservers": [
+        "ns-123.awsdns-15.com",
+        "ns-1358.awsdns-41.org",
+        "ns-1992.awsdns-57.co.uk",
+        "ns-747.awsdns-29.net"
+      ],
+      "wikidata": {
+        "id": "Q79543668",
+        "label": "Samsara",
+        "officialWebsite": [
+          "http://samsara.com/"
+        ]
+      }
+    }
+  },
+  {
+    "domain": "gomotive.com",
+    "platformName": "Motive",
+    "companyName": "Motive Technologies, Inc.",
+    "category": "Fleet telematics / ELD",
+    "officialUrl": "https://gomotive.com/",
+    "brandKeywords": [
+      "gomotive",
+      "keeptruckin"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "English Wikipedia article \"Motive (company)\" infobox website = gomotive.com \u2014 https://en.wikipedia.org/wiki/Motive_(company)",
+    "verifiedAt": "2026-11-11T22:23:58.790Z",
+    "notes": "Live title: \"Motive: All-in-One Fleet Management &amp; Driver Safety Platform\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://gomotive.com/",
+        "title": "Motive: All-in-One Fleet Management &amp; Driver Safety Platform"
+      },
+      "nameservers": [
+        "ns-1342.awsdns-39.org",
+        "ns-1662.awsdns-15.co.uk",
+        "ns-312.awsdns-39.com",
+        "ns-563.awsdns-06.net"
+      ],
+      "wikipedia": {
+        "title": "Motive (company)",
+        "website": "gomotive.com",
+        "url": "https://en.wikipedia.org/wiki/Motive_(company)"
+      }
+    }
+  },
+  {
+    "domain": "keeptruckin.com",
+    "platformName": "Motive (formerly KeepTruckin)",
+    "companyName": "Motive Technologies, Inc.",
+    "category": "Fleet telematics / ELD",
+    "officialUrl": "https://gomotive.com/",
+    "brandKeywords": [
+      "keeptruckin"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q107104580 (KeepTruckin) official website P856 = https://keeptruckin.com/ \u2014 https://www.wikidata.org/wiki/Q107104580",
+    "verifiedAt": "2026-11-11T22:23:34.637Z",
+    "notes": "Live title: \"Motive: All-in-One Fleet Management &amp; Driver Safety Platform\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://gomotive.com/",
+        "title": "Motive: All-in-One Fleet Management &amp; Driver Safety Platform"
+      },
+      "nameservers": [
+        "ns-1435.awsdns-51.org",
+        "ns-1846.awsdns-38.co.uk",
+        "ns-211.awsdns-26.com",
+        "ns-604.awsdns-11.net"
+      ],
+      "wikidata": {
+        "id": "Q107104580",
+        "label": "KeepTruckin",
+        "officialWebsite": [
+          "https://keeptruckin.com/"
+        ]
+      }
+    }
+  },
+  {
+    "domain": "e2open.com",
+    "platformName": "e2open",
+    "companyName": "E2open Parent Holdings",
+    "category": "Freight management system",
+    "officialUrl": "https://www.e2open.com/",
+    "brandKeywords": [
+      "e2open"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q5322388 (E2open) official website P856 = http://www.e2open.com \u2014 https://www.wikidata.org/wiki/Q5322388",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Supply Chain Software: The Connected Supply Chain - e2open\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q5322388",
+        "label": "E2open",
+        "officialWebsite": [
+          "http://www.e2open.com"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.e2open.com/",
+        "title": "Supply Chain Software: The Connected Supply Chain - e2open"
+      },
+      "nameservers": [
+        "edns3.ultradns.biz",
+        "edns3.ultradns.com",
+        "edns3.ultradns.net",
+        "edns3.ultradns.org",
+        "ns1-chg.e2open.com",
+        "ns1-sjca.e2open.com",
+        "ns2-chg.e2open.com",
+        "ns2-sjca.e2open.com"
+      ]
+    }
+  },
+  {
+    "domain": "transporeon.com",
+    "platformName": "Transporeon",
+    "companyName": "Transporeon (Trimble)",
+    "category": "Freight management system",
+    "officialUrl": "https://www.transporeon.com/en",
+    "brandKeywords": [
+      "transporeon"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "SEC EDGAR: Trimble Inc. (CIK 0000864749) Form 8-K Exhibit 99.1 filed 2022-12-12 (Transporeon acquisition) references transporeon.com \u2014 https://www.sec.gov/Archives/edgar/data/864749/000119312522302877/d375668dex991.htm",
+    "verifiedAt": "2026-11-11T22:28:25.426Z",
+    "notes": "Live title: \"Transportation Management Platform | Transporeon\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.transporeon.com/en",
+        "title": "Transportation Management Platform | Transporeon"
+      },
+      "nameservers": [
+        "a.ns14.net",
+        "b.ns14.net",
+        "c.ns14.net",
+        "d.ns14.net"
+      ],
+      "manual": "SEC EDGAR: Trimble Inc. (CIK 0000864749) Form 8-K Exhibit 99.1 filed 2022-12-12 (Transporeon acquisition) references transporeon.com \u2014 https://www.sec.gov/Archives/edgar/data/864749/000119312522302877/d375668dex991.htm"
+    }
+  },
+  {
+    "domain": "comdata.com",
+    "platformName": "Comdata",
+    "companyName": "Comdata Inc. (Corpay)",
+    "category": "Fuel card & payments",
+    "officialUrl": "https://www.comdata.com/",
+    "brandKeywords": [
+      "comdata"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q5151024 (Comdata) official website P856 = https://www.comdata.com/ \u2014 https://www.wikidata.org/wiki/Q5151024",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Truck Fleet Management | Fleet Fuel, Permits, and Taxes | Comdata Trucking\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q5151024",
+        "label": "Comdata",
+        "officialWebsite": [
+          "https://www.comdata.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.comdata.com/",
+        "title": "Truck Fleet Management | Fleet Fuel, Permits, and Taxes | Comdata Trucking"
+      },
+      "nameservers": [
+        "ns1.fleetcor.com",
+        "ns2.fleetcor.com",
+        "ns3.fleetcor.com"
+      ]
+    }
+  },
+  {
+    "domain": "efsllc.com",
+    "platformName": "EFS",
+    "companyName": "Electronic Funds Source LLC (WEX)",
+    "category": "Fuel card & payments",
+    "officialUrl": "https://www.efsllc.com/",
+    "brandKeywords": [
+      "efsllc",
+      "efsfleet"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"EFS and Fleet One | Fleet Payment Solutions | WEX Inc.\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.efsllc.com/",
+        "title": "EFS and Fleet One | Fleet Payment Solutions | WEX Inc."
+      },
+      "nameservers": [
+        "ns-1178.awsdns-19.org",
+        "ns-1671.awsdns-16.co.uk",
+        "ns-227.awsdns-28.com",
+        "ns-821.awsdns-38.net"
+      ],
+      "parentRedirect": false,
+      "sharedNameservers": false,
+      "parentLinks": false,
+      "parentCheck": {
+        "parent": "wexinc.com",
+        "redirect": false,
+        "sharedNs": false,
+        "childNs": [
+          "ns-1178.awsdns-19.org",
+          "ns-1671.awsdns-16.co.uk",
+          "ns-227.awsdns-28.com",
+          "ns-821.awsdns-38.net"
+        ],
+        "parentNs": [
+          "ns-1300.awsdns-34.org",
+          "ns-1629.awsdns-11.co.uk",
+          "ns-443.awsdns-55.com",
+          "ns-949.awsdns-54.net"
+        ],
+        "linkedFrom": null
+      }
+    }
+  },
+  {
+    "domain": "wexinc.com",
+    "platformName": "WEX",
+    "companyName": "WEX Inc.",
+    "category": "Fuel card & payments",
+    "officialUrl": "https://www.wexinc.com/",
+    "brandKeywords": [
+      "wexinc"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q8038212 (Wright Express) official website P856 = http://www.wexinc.com/ \u2014 https://www.wikidata.org/wiki/Q8038212",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"WEX | Simplify business fuel cards, employee benefits, &amp; payment solutions\"",
+    "evidence": {
+      "wikidata": {
+        "id": "Q8038212",
+        "label": "Wright Express",
+        "officialWebsite": [
+          "http://www.wexinc.com/"
+        ]
+      },
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.wexinc.com/",
+        "title": "WEX | Simplify business fuel cards, employee benefits, &amp; payment solutions"
+      },
+      "nameservers": [
+        "ns-1300.awsdns-34.org",
+        "ns-1629.awsdns-11.co.uk",
+        "ns-443.awsdns-55.com",
+        "ns-949.awsdns-54.net"
+      ]
+    }
+  },
+  {
+    "domain": "rtsfinancial.com",
+    "platformName": "RTS Financial",
+    "companyName": "RTS Financial Service, Inc.",
+    "category": "Freight factoring",
+    "officialUrl": "https://rtsfinancial.com/",
+    "brandKeywords": [
+      "rtsfinancial"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": null,
+    "evidence": {
+      "live": {
+        "error": "fetch failed"
+      },
+      "nameservers": [
+        "blue.foundationdns.com",
+        "blue.foundationdns.net",
+        "blue.foundationdns.org"
+      ]
+    }
+  },
+  {
+    "domain": "triumphpay.com",
+    "platformName": "TriumphPay",
+    "companyName": "Triumph Financial, Inc.",
+    "category": "Freight payments",
+    "officialUrl": "https://triumph.io/carrier/payments/",
+    "brandKeywords": [
+      "triumphpay"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Payment Solutions and QuickPay for Carriers | Triumph\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://triumph.io/carrier/payments/",
+        "title": "Payment Solutions and QuickPay for Carriers | Triumph"
+      },
+      "nameservers": [
+        "ns-1503.awsdns-59.org",
+        "ns-166.awsdns-20.com",
+        "ns-2001.awsdns-58.co.uk",
+        "ns-885.awsdns-46.net"
+      ]
+    }
+  },
+  {
+    "domain": "relaypayments.com",
+    "platformName": "Relay Payments",
+    "companyName": "Relay Payments, Inc.",
+    "category": "Freight payments",
+    "officialUrl": "https://www.relaypayments.com/",
+    "brandKeywords": [
+      "relaypayments"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Relay Payments - Fast, secure digital payments for logistics\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.relaypayments.com/",
+        "title": "Relay Payments - Fast, secure digital payments for logistics"
+      },
+      "nameservers": [
+        "ns-1005.awsdns-61.net",
+        "ns-1148.awsdns-15.org",
+        "ns-176.awsdns-22.com",
+        "ns-1774.awsdns-29.co.uk"
+      ]
+    }
+  },
+  {
+    "domain": "apexcapitalcorp.com",
+    "platformName": "Apex Capital",
+    "companyName": "Apex Capital Corp",
+    "category": "Freight factoring",
+    "officialUrl": "https://www.apexcapitalcorp.com/",
+    "brandKeywords": [
+      "apexcapital"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Apex Capital | America&#039;s Favorite Factor for Trucking Companies\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://www.apexcapitalcorp.com/",
+        "title": "Apex Capital | America&#039;s Favorite Factor for Trucking Companies"
+      },
+      "nameservers": [
+        "ns-1168.awsdns-18.org",
+        "ns-1974.awsdns-54.co.uk",
+        "ns-375.awsdns-46.com",
+        "ns-984.awsdns-59.net"
+      ]
+    }
+  },
+  {
+    "domain": "otrsolutions.com",
+    "platformName": "OTR Solutions",
+    "companyName": "OTR Solutions",
+    "category": "Freight factoring",
+    "officialUrl": "https://otrsolutions.com/",
+    "brandKeywords": [
+      "otrsolutions"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"OTR Solutions | Freight Factoring &amp; Fuel Card Solutions\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://otrsolutions.com/",
+        "title": "OTR Solutions | Freight Factoring &amp; Fuel Card Solutions"
+      },
+      "nameservers": [
+        "ns49.domaincontrol.com",
+        "ns50.domaincontrol.com"
+      ]
+    }
+  },
+  {
+    "domain": "pochta.uz",
+    "platformName": "Uzbekistan Post",
+    "companyName": "JSC Uzbekiston Pochtasi",
+    "category": "Postal service",
+    "officialUrl": "https://pochta.uz/",
+    "brandKeywords": [
+      "uzpost",
+      "pochtauz"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "English Wikipedia article \"UzPost\" infobox website = pochta.uz \u2014 https://en.wikipedia.org/wiki/UzPost",
+    "verifiedAt": "2026-11-11T22:23:58.790Z",
+    "notes": "Live title: \"\u041c\u044b \u043f\u0435\u0440\u0435\u0435\u0445\u0430\u043b\u0438\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://pochta.uz/",
+        "title": "\u041c\u044b \u043f\u0435\u0440\u0435\u0435\u0445\u0430\u043b\u0438"
+      },
+      "nameservers": [
+        "dns1.webspace.uz",
+        "dns2.webspace.uz",
+        "dns3.webspace.uz",
+        "dns4.webspace.uz"
+      ],
+      "wikipedia": {
+        "title": "UzPost",
+        "website": "pochta.uz",
+        "url": "https://en.wikipedia.org/wiki/UzPost"
+      }
+    }
+  },
+  {
+    "domain": "railway.uz",
+    "platformName": "Uzbekistan Railways",
+    "companyName": "JSC O'zbekiston Temir Yo'llari",
+    "category": "Rail transport",
+    "officialUrl": "https://railway.uz/uz/",
+    "brandKeywords": [
+      "uzrailway",
+      "temiryol"
+    ],
+    "trustStatus": "VERIFIED_OFFICIAL",
+    "verificationSource": "Wikidata Q2093569 (Uzbek Railways) official website P856 = https://railway.uz \u2014 https://www.wikidata.org/wiki/Q2093569",
+    "verifiedAt": "2026-11-11T22:23:34.637Z",
+    "notes": "Live title: \"\u00abO\u2018zbekiston temir yo\u2018llari\u00bb \u0410J | O\u2018zbekiston temir yo\u2018llari\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://railway.uz/uz/",
+        "title": "\u00abO\u2018zbekiston temir yo\u2018llari\u00bb \u0410J | O\u2018zbekiston temir yo\u2018llari"
+      },
+      "nameservers": [
+        "ns.railway.uz"
+      ],
+      "wikidata": {
+        "id": "Q2093569",
+        "label": "Uzbek Railways",
+        "officialWebsite": [
+          "https://railway.uz"
+        ]
+      }
+    }
+  },
+  {
+    "domain": "customs.uz",
+    "platformName": "Uzbekistan Customs",
+    "companyName": "Customs Committee of the Republic of Uzbekistan",
+    "category": "Government customs",
+    "officialUrl": "https://customs.uz/",
+    "brandKeywords": [
+      "customsuz"
+    ],
+    "trustStatus": "UNVERIFIED",
+    "verificationSource": "No independent evidence found automatically; requires manual verification by an administrator.",
+    "verifiedAt": "2026-11-11T22:19:59.458Z",
+    "notes": "Live title: \"Bojxona qo'mitasi rasmiy veb sayti\"",
+    "evidence": {
+      "live": {
+        "status": 200,
+        "finalUrl": "https://customs.uz/",
+        "title": "Bojxona qo'mitasi rasmiy veb sayti"
+      },
+      "nameservers": [
+        "ns1.customs.uz",
+        "ns2.customs.uz"
+      ]
+    }
+  }
+]

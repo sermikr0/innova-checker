@@ -1,0 +1,40 @@
+{
+ "note": "Carrier-owned domains found on third-party threat lists during the 2026-11-17 false-positive audit. Ownership verified by organisation-validated TLS certificate (O=Deutsche Post AG) and redirect to the carrier's official site.",
+ "records": [
+  {
+   "domain": "dhlparcel.se",
+   "platformName": "DHL",
+   "companyName": "Deutsche Post DHL Group",
+   "officialUrl": "https://www.dhl.com/se-sv/",
+   "evidence": "TLS certificate O=Deutsche Post AG (CN=logistics.dhl); redirects to www.dhl.com/se-sv; registrar Key-Systems (DHL's registrar)"
+  },
+  {
+   "domain": "dhlparcel.cz",
+   "platformName": "DHL / PPL",
+   "companyName": "Deutsche Post DHL Group",
+   "officialUrl": "https://www.ppl.cz/",
+   "evidence": "TLS certificate O=Deutsche Post AG; WHOIS registrant Deutsche Post AG; redirects to www.ppl.cz (DHL's Czech subsidiary)"
+  },
+  {
+   "domain": "dhl-parcel.pt",
+   "platformName": "DHL eCommerce",
+   "companyName": "Deutsche Post DHL Group",
+   "officialUrl": "https://www.dhl.com/pt-pt/ecommerce/",
+   "evidence": "TLS certificate O=Deutsche Post AG; redirects to www.dhl.com/pt-pt/ecommerce"
+  },
+  {
+   "domain": "fedex.co.il",
+   "platformName": "FedEx",
+   "companyName": "FedEx Corporation",
+   "officialUrl": "https://www.fedex.com/he-il/",
+   "evidence": "TLS certificate O=FedEx Corporation valid for this hostname (checked 2026-11-17)"
+  },
+  {
+   "domain": "fedex.co.at",
+   "platformName": "FedEx",
+   "companyName": "FedEx Corporation",
+   "officialUrl": "https://www.fedex.com/de-at/",
+   "evidence": "TLS certificate O=FedEx Corporation valid for this hostname (checked 2026-11-17)"
+  }
+ ]
+}

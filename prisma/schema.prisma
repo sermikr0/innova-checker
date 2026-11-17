@@ -1,0 +1,695 @@
+// Innova Checker database schema (PostgreSQL, Prisma 7).
+// Migrations live in prisma/migrations; seed data in prisma/seed.ts.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  /// Regular user with unlimited usage: no subscription or device limit, no admin panel.
+  UNLIMITED
+  USER
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  SUSPENDED
+  CANCELLED
+  PENDING
+}
+
+enum SubscriptionAction {
+  ASSIGNED
+  PLAN_CHANGED
+  EXTENDED
+  EXPIRY_SET
+  ACTIVATED
+  DEACTIVATED
+  SUSPENDED
+  CANCELLED
+  EXPIRED
+  PURCHASED
+}
+
+enum DurationUnit {
+  DAY
+  MONTH
+  YEAR
+}
+
+enum ScanStatus {
+  PENDING
+  SCANNING
+  COMPLETED
+  FAILED
+}
+
+enum Verdict {
+  TRUSTED
+  SAFE
+  LOW_RISK
+  SUSPICIOUS
+  HIGH_RISK
+  MALICIOUS
+  INCONCLUSIVE
+}
+
+enum CheckStatus {
+  PASS
+  INFO
+  WARN
+  FAIL
+  ERROR
+  UNAVAILABLE
+  NOT_CONFIGURED
+  SKIPPED
+}
+
+enum Severity {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IntelStatus {
+  CLEAN
+  MALICIOUS
+  SUSPICIOUS
+  UNKNOWN
+  NOT_CONFIGURED
+  DISABLED
+  UNAVAILABLE
+  ERROR
+}
+
+// ─── Identity ───────────────────────────────────────────────────────────────
+
+model User {
+  id                String    @id @default(cuid())
+  /// Always stored lower-cased.
+  email             String    @unique
+  fullName          String
+  companyName       String
+  passwordHash      String
+  role              Role      @default(USER)
+  isActive          Boolean   @default(true)
+  lastLoginAt       DateTime?
+  passwordChangedAt DateTime?
+  /// { reportDetail: "summary" | "full", historyPageSize: 10|25|50, autoOpenReport: boolean }
+  preferences       Json      @default("{}")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  sessions            Session[]
+  devices             Device[]
+  subscriptions       Subscription[]        @relation("SubscriptionUser")
+  subscriptionHistory SubscriptionHistory[] @relation("HistoryUser")
+  actedHistory        SubscriptionHistory[] @relation("HistoryActor")
+  scans               Scan[]
+  auditLogs           AuditLog[]            @relation("AuditActor")
+  passwordResetTokens PasswordResetToken[]
+  domainSubmissions   DomainRecord[]        @relation("DomainSubmitter")
+  paymentIntents      PaymentIntent[]
+
+  @@index([role])
+  @@index([createdAt])
+}
+
+model Session {
+  id         String    @id @default(cuid())
+  /// SHA-256 of the opaque cookie token; the raw token is never stored.
+  tokenHash  String    @unique
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId   String?
+  device     Device?   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+
+  @@index([userId])
+  @@index([deviceId])
+  @@index([expiresAt])
+}
+
+model Device {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// SHA-256 of the per-browser device token held in an httpOnly cookie.
+  tokenHash     String
+  /// Derived server-side from the User-Agent ("Chrome on Windows"); informational only.
+  label         String
+  userAgent     String?
+  firstIp       String?
+  lastIp        String?
+  createdAt     DateTime  @default(now())
+  lastSeenAt    DateTime  @default(now())
+  revokedAt     DateTime?
+  revokedById   String?
+  revokedReason String?
+  /// HMAC of the browser fingerprint's stable components. Unlike the cookie it
+  /// survives private windows and cleared storage, so one machine stays one device.
+  fingerprintHash String?
+
+  sessions       Session[]
+  scans          Scan[]
+  paymentIntents PaymentIntent[]
+
+  @@unique([userId, tokenHash])
+  @@index([userId, revokedAt])
+  @@index([userId, fingerprintHash])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  requestIp String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model AnonymousSession {
+  id            String   @id @default(cuid())
+  tokenHash     String   @unique
+  /// HMAC of the client IP (IP_HASH_SECRET); raw IPs are not stored for visitors.
+  ipHash        String
+  userAgentHash String?
+  /// HMAC of the browser fingerprint: a private window gets a new cookie but not a new free scan.
+  fingerprintHash String?
+  scansUsed     Int      @default(0)
+  createdAt     DateTime @default(now())
+  lastSeenAt    DateTime @default(now())
+
+  scans Scan[]
+
+  @@index([ipHash, createdAt])
+  @@index([fingerprintHash])
+}
+
+// ─── Subscriptions ──────────────────────────────────────────────────────────
+
+model SubscriptionPlan {
+  id            String       @id @default(cuid())
+  slug          String       @unique
+  name          String
+  description   String
+  durationValue Int
+  durationUnit  DurationUnit
+  /// Whole Uzbekistani so'm (Click).
+  priceUzs      Int
+  /// US cents for international card payments; 0 = not sold by card.
+  priceUsdCents Int          @default(0)
+  deviceLimit   Int
+  /// string[] of marketing feature bullets.
+  features      Json         @default("[]")
+  isActive      Boolean      @default(true)
+  isRecommended Boolean      @default(false)
+  sortOrder     Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  subscriptions  Subscription[]
+  paymentIntents PaymentIntent[]
+
+  @@index([isActive, sortOrder])
+}
+
+model Subscription {
+  id          String             @id @default(cuid())
+  userId      String
+  user        User               @relation("SubscriptionUser", fields: [userId], references: [id], onDelete: Cascade)
+  planId      String
+  plan        SubscriptionPlan   @relation(fields: [planId], references: [id], onDelete: Restrict)
+  status      SubscriptionStatus @default(PENDING)
+  startsAt    DateTime
+  expiresAt   DateTime
+  /// Snapshot of the plan's device limit at assignment (admins may override).
+  deviceLimit Int
+  /// ADMIN, or the payment provider (CLICK, CARD) that paid for it.
+  source      String             @default("ADMIN")
+  paymentIntentId String?
+  note        String?
+  createdById String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  history SubscriptionHistory[]
+
+  // A partial unique index (see migration) allows only one ACTIVE/SUSPENDED/PENDING
+  // subscription per user.
+  @@index([userId, status])
+  @@index([status, expiresAt])
+}
+
+model SubscriptionHistory {
+  id             String              @id @default(cuid())
+  subscriptionId String
+  subscription   Subscription        @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User                @relation("HistoryUser", fields: [userId], references: [id], onDelete: Cascade)
+  actorId        String?
+  actor          User?               @relation("HistoryActor", fields: [actorId], references: [id], onDelete: SetNull)
+  action         SubscriptionAction
+  fromStatus     SubscriptionStatus?
+  toStatus       SubscriptionStatus?
+  fromPlanName   String?
+  toPlanName     String?
+  fromExpiresAt  DateTime?
+  toExpiresAt    DateTime?
+  note           String?
+  createdAt      DateTime            @default(now())
+
+  @@index([userId, createdAt])
+  @@index([subscriptionId])
+}
+
+// ─── Scanning ───────────────────────────────────────────────────────────────
+
+model Scan {
+  id                 String            @id
+  userId             String?
+  user               User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anonymousSessionId String?
+  anonymousSession   AnonymousSession? @relation(fields: [anonymousSessionId], references: [id], onDelete: SetNull)
+  deviceId           String?
+  device             Device?           @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  inputUrl           String
+  normalizedUrl      String
+  finalUrl           String?
+  domain             String
+  registrableDomain  String?
+  status             ScanStatus        @default(PENDING)
+  stage              String?
+  verdict            Verdict?
+  riskScore          Int?
+  /// Share of analysis modules that produced a result (0-100).
+  confidence         Int?
+  ipHash             String?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  durationMs         Int?
+  errorMessage       String?
+  createdAt          DateTime          @default(now())
+
+  result       ScanResult?
+  findings     ScanFinding[]
+  intelResults ThreatIntelligenceResult[]
+
+  @@index([userId, createdAt])
+  @@index([anonymousSessionId])
+  @@index([ipHash, createdAt])
+  @@index([verdict])
+  @@index([domain])
+  @@index([status, createdAt])
+}
+
+model ScanResult {
+  id              String   @id @default(cuid())
+  scanId          String   @unique
+  scan            Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  summary         String
+  urlAnalysis     Json?
+  domainInfo      Json?
+  dnsRecords      Json?
+  tlsInfo         Json?
+  redirects       Json?
+  content         Json?
+  download        Json?
+  recommendations Json     @default("[]")
+  /// Domain-intelligence database matches (whitelist / blacklist / suspicious).
+  domainDbMatch   Json?
+  /// Per-module run status and timing.
+  modules         Json
+  /// Score breakdown (contributions per finding).
+  scoring         Json
+  createdAt       DateTime @default(now())
+}
+
+model ScanFinding {
+  id          String      @id @default(cuid())
+  scanId      String
+  scan        Scan        @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  module      String
+  code        String
+  title       String
+  status      CheckStatus
+  severity    Severity    @default(NONE)
+  /// Risk contribution 0-100 before combination.
+  weight      Int         @default(0)
+  result      String
+  explanation String
+  evidence    Json?
+  source      String
+  checkedAt   DateTime    @default(now())
+
+  @@index([scanId, module])
+}
+
+model ThreatIntelligenceResult {
+  id        String      @id @default(cuid())
+  scanId    String
+  scan      Scan        @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  provider  String
+  status    IntelStatus
+  summary   String
+  details   Json?
+  latencyMs Int?
+  checkedAt DateTime    @default(now())
+
+  @@index([scanId])
+  @@index([provider, status])
+}
+
+/// Short-lived cache for public lookups (RDAP bootstrap, WHOIS, RDAP answers).
+model IntelCache {
+  key       String   @id
+  value     Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+// ─── Configuration (singleton rows, id = "default") ─────────────────────────
+
+model ScannerConfiguration {
+  id                       String   @id @default("default")
+  /// { url, domain, dns, tls, redirects, content, download, intel }: boolean
+  modules                  Json
+  /// { googleSafeBrowsing, virusTotal, urlhaus, phishTank, abuseIpdb }: boolean
+  providers                Json
+  /// Category multipliers applied to finding weights: { url, domain, dns, tls, redirects, content, download, intel }
+  weights                  Json
+  suspiciousKeywords       String[]
+  suspiciousTlds           String[]
+  urlShorteners            String[]
+  /// Glob patterns (only * and ?), matched case-insensitively against the host.
+  suspiciousDomainPatterns String[]
+  /// Hosts (and their subdomains) that never receive the heuristic brand checks.
+  trustedDomains           String[]
+  /// [{ brand, keywords[], domains[] }] used for impersonation checks.
+  brandDomains             Json
+  requestTimeoutMs         Int      @default(8000)
+  scanTimeoutMs            Int      @default(45000)
+  maxRedirects             Int      @default(5)
+  maxResponseBytes         Int      @default(2000000)
+  maxDownloadBytes         Int      @default(10000000)
+  userAgent                String
+  virusTotalSubmitUnknown  Boolean  @default(false)
+  updatedAt                DateTime @updatedAt
+  updatedById              String?
+}
+
+model PricingConfiguration {
+  id             String   @id @default("default")
+  currency       String   @default("UZS")
+  paymentNotice  String   @default("Payments are currently unavailable. Subscription purchases will be enabled soon.")
+  ctaLabel       String   @default("Coming Soon")
+  highlightLabel String   @default("Recommended")
+  showComparison Boolean  @default(true)
+  updatedAt      DateTime @updatedAt
+  updatedById    String?
+}
+
+model SystemSetting {
+  id                        String   @id @default("default")
+  siteName                  String   @default("Innova Checker")
+  supportEmail              String   @default("support@innovanetworks.uz")
+  logoUrl                   String   @default("/brand/innova-logo-white.png")
+  freeScanLimit             Int      @default(1)
+  anonymousIpDailyLimit     Int      @default(5)
+  registrationEnabled       Boolean  @default(true)
+  sessionTtlHours           Int      @default(168)
+  loginMaxAttempts          Int      @default(5)
+  deviceRemovalsPer30Days   Int      @default(3)
+  noSubscriptionDeviceLimit Int      @default(1)
+  passwordMinLength         Int      @default(1)
+  loginLockoutMinutes       Int      @default(15)
+  /// How long an IP stays blocked after loginMaxAttempts failed sign-ins.
+  ipBlockMinutes            Int      @default(60)
+  /// Seconds a payment QR code stays valid; payments started later are refused.
+  paymentWindowSeconds      Int      @default(180)
+  allowUserDeviceRemoval    Boolean  @default(true)
+  maintenanceMode           Boolean  @default(false)
+  maintenanceMessage        String   @default("Innova Checker is undergoing scheduled maintenance. Scanning will resume shortly.")
+  updatedAt                 DateTime @updatedAt
+  updatedById               String?
+}
+
+// ─── Operations ─────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorId     String?
+  actor       User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  actorEmail  String?
+  action      String
+  targetType  String?
+  targetId    String?
+  targetLabel String?
+  metadata    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actorId])
+  @@index([action])
+  @@index([targetType, targetId])
+}
+
+model RateLimitBucket {
+  key         String
+  windowStart DateTime
+  count       Int      @default(0)
+  expiresAt   DateTime
+
+  @@id([key, windowStart])
+  @@index([expiresAt])
+}
+
+model ContactMessage {
+  id        String    @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  subject   String
+  message   String
+  ipHash    String?
+  handledAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([createdAt])
+}
+
+// ─── Domain intelligence ────────────────────────────────────────────────────
+
+enum DomainListType {
+  WHITELIST
+  BLACKLIST
+  SUSPICIOUS
+}
+
+/// DOMAIN = the domain and its subdomains, HOST = this exact host only, URL = one exact URL.
+enum DomainMatchScope {
+  DOMAIN
+  HOST
+  URL
+}
+
+enum DomainRecordStatus {
+  ACTIVE
+  PENDING
+  REJECTED
+}
+
+enum DomainTrustStatus {
+  VERIFIED_OFFICIAL
+  CONFIRMED_MALICIOUS
+  SUSPECTED
+  UNVERIFIED
+}
+
+model DomainRecord {
+  id                 String             @id @default(cuid())
+  /// Lower-case ASCII (punycode) host, or the full URL when scope = URL.
+  domain             String
+  listType           DomainListType
+  scope              DomainMatchScope   @default(DOMAIN)
+  status             DomainRecordStatus @default(ACTIVE)
+  trustStatus        DomainTrustStatus  @default(UNVERIFIED)
+  platformName       String?
+  companyName        String?
+  officialUrl        String?
+  category           String?
+  /// Keywords used to detect impersonation of this platform (whitelist only).
+  brandKeywords      String[]
+  verificationSource String?
+  verifiedAt         DateTime?
+  notes              String?
+  /// Where the record came from: SEED_RESEARCH, ADMIN, IMPORT, USER_SUBMISSION, FEED:<name>
+  origin             String             @default("ADMIN")
+  submittedById      String?
+  submittedBy        User?              @relation("DomainSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
+  reviewedById       String?
+  reviewedAt         DateTime?
+  lastRevalidatedAt  DateTime?
+  revalidationStatus String?
+  revalidationNote   String?
+  expiresAt          DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  history DomainRecordHistory[]
+
+  @@unique([domain, listType])
+  @@index([listType, status])
+  @@index([status, createdAt])
+  @@index([origin])
+}
+
+model DomainRecordHistory {
+  id         String        @id @default(cuid())
+  recordId   String?
+  record     DomainRecord? @relation(fields: [recordId], references: [id], onDelete: SetNull)
+  domain     String
+  listType   DomainListType
+  action     String
+  changes    Json?
+  actorId    String?
+  actorEmail String?
+  createdAt  DateTime      @default(now())
+
+  @@index([recordId, createdAt])
+  @@index([domain])
+  @@index([createdAt])
+}
+
+model JobRun {
+  id         String    @id @default(cuid())
+  name       String
+  trigger    String
+  status     String
+  summary    Json?
+  error      String?
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  @@index([name, startedAt])
+}
+
+/// Threat-intelligence API keys managed from the admin panel (encrypted at rest,
+/// AES-256-GCM). A stored key overrides the environment variable.
+model ProviderCredential {
+  provider       String    @id
+  ciphertext     String
+  keyHint        String
+  quota          Json?
+  quotaCheckedAt DateTime?
+  updatedById    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+// ─── Security ───────────────────────────────────────────────────────────────
+
+model IpBlock {
+  id            String   @id @default(cuid())
+  ip            String   @unique
+  reason        String
+  failures      Int      @default(0)
+  blockedUntil  DateTime
+  unblockedById String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([blockedUntil])
+}
+
+// ─── Payments ───────────────────────────────────────────────────────────────
+
+enum PaymentProvider {
+  CLICK
+  CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  PREPARED
+  PAID
+  EXPIRED
+  CANCELLED
+  FAILED
+}
+
+model PaymentIntent {
+  id              String           @id @default(cuid())
+  /// Sent to the provider as merchant_trans_id; Click also needs a numeric prepare id.
+  number          Int              @unique @default(autoincrement())
+  /// SHA-256 of the random token in the QR link (/pay/{token}).
+  tokenHash       String           @unique
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// The device that started the payment; the subscription is guaranteed on it.
+  deviceId        String?
+  device          Device?          @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  planId          String
+  plan            SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Restrict)
+  provider        PaymentProvider
+  /// Whole so'm for UZS, cents for USD.
+  amount          Int
+  currency        String
+  status          PaymentStatus    @default(PENDING)
+  /// Created in local test mode; never accepted by a real provider callback.
+  mock            Boolean          @default(false)
+  expiresAt       DateTime
+  providerTransId String?
+  preparedAt      DateTime?
+  paidAt          DateTime?
+  cancelledAt     DateTime?
+  failureReason   String?
+  subscriptionId  String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  events PaymentEvent[]
+
+  @@index([userId, createdAt])
+  @@index([status, expiresAt])
+}
+
+model PaymentEvent {
+  id        String          @id @default(cuid())
+  intentId  String?
+  intent    PaymentIntent?  @relation(fields: [intentId], references: [id], onDelete: SetNull)
+  provider  PaymentProvider
+  /// PREPARE, COMPLETE, REDIRECT, MOCK
+  kind      String
+  request   Json
+  response  Json
+  ip        String?
+  createdAt DateTime        @default(now())
+
+  @@index([intentId])
+  @@index([createdAt])
+}
